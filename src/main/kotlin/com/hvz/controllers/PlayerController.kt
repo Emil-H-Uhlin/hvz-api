@@ -2,6 +2,7 @@ package com.hvz.controllers
 
 import com.hvz.models.Player
 import com.hvz.services.player.PlayerService
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController
 @RestController
 @RequestMapping(path = ["api/v1/"])
 class PlayerController {
+    @Autowired
     lateinit var playerService: PlayerService
 
     @GetMapping("players")
