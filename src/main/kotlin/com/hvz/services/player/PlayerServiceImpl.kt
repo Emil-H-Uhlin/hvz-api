@@ -3,10 +3,12 @@ package com.hvz.services.player
 import com.hvz.exceptions.PlayerNotFoundException
 import com.hvz.models.Player
 import com.hvz.repositories.PlayerRepository
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 
 @Service
 class PlayerServiceImpl : PlayerService {
+    @Autowired
     lateinit var playerRepository: PlayerRepository
 
     override fun findById(id: Int): Player = playerRepository.findById(id)
