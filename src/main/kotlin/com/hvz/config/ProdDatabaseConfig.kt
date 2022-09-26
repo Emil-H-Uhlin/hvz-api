@@ -5,13 +5,14 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Profile
 import java.net.URI
+import javax.sql.DataSource
 
 @Configuration
 @Profile("prod")
 class ProdDatabaseConfig
 
 @Bean
-fun dataSource() {
+fun dataSource(): DataSource {
     val dbUri = URI(System.getenv("DATABASE_URL"))
 
     var usr: String
@@ -22,12 +23,11 @@ fun dataSource() {
     with (dbUri.userInfo.split(":")) {
         usr = this[0]
         pwd = this[1]
-
     }
 
     return with(DataSourceBuilder.create()) {
         url(dbUrl)
         username(usr)
         password(pwd)
-    }
+    }.build()
 }
