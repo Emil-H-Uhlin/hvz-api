@@ -8,7 +8,7 @@ WORKDIR /app
 
 ENV PORT 8080
 ENV SPRING_PROFILE "prod"
-ENV JPA_DDL "none"
+ENV JPA_DDL "create"
 ENV SHOW_SQL "false"
 ENV INIT_SQL "always"
 
