@@ -1,0 +1,37 @@
+package com.hvz.models
+
+import com.hvz.misc.GameState
+import javax.persistence.Column
+import javax.persistence.Entity
+import javax.persistence.GeneratedValue
+import javax.persistence.GenerationType
+import javax.persistence.Id
+
+@Entity
+data class Game(
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
+    val id: Int,
+
+    @Column(name = "name")
+    val gameName: String,
+
+    @Column(name = "description")
+    val description: String,
+
+    @Column(name = "game_state", nullable = false)
+    val gameState: GameState,
+
+    @Column(name = "nw_lat", nullable = false)
+    val nwLat: Double,
+
+    @Column(name = "nw_lng", nullable = false)
+    val nwLng: Double,
+
+    @Column(name = "se_lat", nullable = false)
+    val seLat: Double,
+
+    @Column(name = "se_lng", nullable = false)
+    val seLng: Double,
+)
