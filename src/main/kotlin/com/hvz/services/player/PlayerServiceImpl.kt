@@ -7,10 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 
 @Service
-class PlayerServiceImpl : PlayerService {
-    @Autowired
-    lateinit var playerRepository: PlayerRepository
-
+class PlayerServiceImpl(val playerRepository: PlayerRepository): PlayerService {
     override fun findById(id: Int): Player = playerRepository.findById(id)
         .orElseThrow {
             PlayerNotFoundException(id)
