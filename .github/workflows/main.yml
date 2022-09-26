@@ -3,6 +3,7 @@ name: Build and deploy to heroku
 on:
   push:
     branches: [ main ]
+  workflow_dispatch:
     
 # Your workflows jobs.
 jobs:
