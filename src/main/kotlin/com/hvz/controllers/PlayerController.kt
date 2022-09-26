@@ -14,10 +14,7 @@ import org.springframework.web.bind.annotation.RestController
 
 @RestController
 @RequestMapping(path = ["api/v1/"])
-class PlayerController {
-    @Autowired
-    lateinit var playerService: PlayerService
-
+class PlayerController(val playerService: PlayerService) {
     @GetMapping("players")
     fun findAll() = playerService.findAll()
 
