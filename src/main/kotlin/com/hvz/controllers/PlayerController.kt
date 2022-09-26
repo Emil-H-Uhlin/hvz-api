@@ -5,4 +5,4 @@ import org.springframework.web.bind.annotation.RestController
 
 @RestController
 @RequestMapping(path = ["api/v1/players"])
-class PlayerController 
+class PlayerController
