@@ -10,7 +10,7 @@ import javax.persistence.Id
 data class Player(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "player_id")
+    @Column(name = "id")
     val id: Int,
 
     @Column(name = "is_human", nullable = false)
