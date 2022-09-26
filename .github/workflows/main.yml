@@ -16,9 +16,9 @@ jobs:
       - name: Build, Push and Release a Docker container to Heroku. # Your custom step name
         uses: gonuit/heroku-docker-deploy@v1.3.3 # GitHub action name (leave it as it is).
         with:
-          email: ${{ hvz.secrets.HEROKU_EMAIL }}
-          heroku_api_key: ${{ hvz.secrets.HEROKU_API_KEY }}
-          heroku_app_name: ${{ hvz.secrets.HEROKU_APP_NAME }}
+          email: ${{ secrets.HEROKU_EMAIL }}
+          heroku_api_key: ${{ secrets.HEROKU_API_KEY }}
+          heroku_app_name: ${{ secrets.HEROKU_APP_NAME }}
           # (Optional, default: "")
           # Additional options of docker build command.
           docker_options: "--no-cache"
