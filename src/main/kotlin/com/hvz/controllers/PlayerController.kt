@@ -2,6 +2,7 @@ package com.hvz.controllers
 
 import com.hvz.exceptions.GameNotFoundException
 import com.hvz.exceptions.PlayerNotFoundException
+import com.hvz.misc.GameState
 import com.hvz.models.Player
 import com.hvz.models.PlayerAddDTO
 import com.hvz.models.PlayerEditDTO
@@ -45,7 +46,7 @@ class PlayerController(val playerService: PlayerService,
             val player = playerService.findById(id)
             playerService.update(
                 player.copy(
-                    human = dto.human
+                    human = dto.human,
                 )
             )
 
@@ -74,6 +75,10 @@ class PlayerController(val playerService: PlayerService,
         return try {
             val game = gameService.findById(gameId)
 
+            if (game.gameState != GameState.REGISTERING) {
+                return ResponseEntity.badRequest().build()
+            }
+            
             val player = playerService.add(dto.toEntity().apply {
                 this.game = game
             })
