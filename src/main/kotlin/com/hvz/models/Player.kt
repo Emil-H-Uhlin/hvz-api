@@ -1,5 +1,6 @@
 package com.hvz.models
 
+import java.util.*
 import javax.persistence.Column
 import javax.persistence.Entity
 import javax.persistence.GeneratedValue
@@ -10,10 +11,6 @@ import javax.persistence.ManyToOne
 
 @Entity
 data class Player(
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
-    val id: Int,
 
     @Column(name = "is_human", nullable = false)
     val human: Boolean,
@@ -25,7 +22,28 @@ data class Player(
     val biteCode: String,
 
     @ManyToOne
-    @JoinColumn(name = "game_id")
-    val game: Game,
-    
+    @JoinColumn(name = "game_id", nullable = false)
+    var game: Game? = null,
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
+    val id: Int = -1
+) {
+    fun toReadDto() = PlayerReadDTO(id, human, patientZero, biteCode, game?.id ?: -1)
+}
+
+data class PlayerReadDTO(val id: Int, val human: Boolean,
+                         val patientZero: Boolean, val biteCode: String,
+                         val game: Int,
 )
+
+data class PlayerAddDTO(val human: Boolean) {
+    fun toEntity() = Player(
+        human,
+        !human,
+        UUID.randomUUID().toString()
+    )
+}
+
+data class PlayerEditDTO(val id: Int, val human: Boolean)
