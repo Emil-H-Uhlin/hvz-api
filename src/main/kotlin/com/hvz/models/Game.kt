@@ -6,13 +6,11 @@ import javax.persistence.Entity
 import javax.persistence.GeneratedValue
 import javax.persistence.GenerationType
 import javax.persistence.Id
+import javax.persistence.JoinColumn
+import javax.persistence.OneToMany
 
 @Entity
 data class Game(
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
-    val id: Int,
 
     @Column(name = "name")
     val gameName: String,
@@ -34,4 +32,43 @@ data class Game(
 
     @Column(name = "se_lng", nullable = false)
     val seLng: Double,
-)
+
+    @OneToMany
+    @JoinColumn(name = "player_ids")
+    val players: Collection<Player> = listOf(),
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
+    val id: Int = -1
+) {
+    data class ReadDTO(val id: Int, val gameName: String,
+        val description: String, val gameState: String,
+        val nwLat: Double, val nwLng: Double,
+        val seLat: Double, val seLng: Double,
+        val players: Collection<Int>,
+    )
+
+    data class AddDTO(val gameName: String, val description: String,
+                      val nwLat: Double, val nwLng: Double,
+                      val seLat: Double, val seLng: Double) {
+        fun toEntity() = Game(
+            gameName, description,
+            GameState.REGISTERING,
+            nwLat, nwLng, seLat, seLng
+        )
+    }
+
+    data class EditDTO(val id: Int, val gameName: String,
+                       val description: String,
+                       val gameState: String,
+                       val nwLat: Double, val nwLng: Double,
+                       val seLat: Double, val seLng: Double)
+
+    fun toReadDto() = ReadDTO(id, gameName,
+        description, gameState.name,
+        nwLat, nwLng,
+        seLat, seLng,
+        players.map { it.id }
+    )
+}
