@@ -38,12 +38,13 @@ class GameController(val gameService: GameService) {
                 game.copy(
                     gameName = dto.gameName,
                     description = dto.description,
-                    gameState = GameState.valueOf(dto.gameState),
                     nwLat = dto.nwLat,
                     nwLng = dto.nwLng,
                     seLat = dto.seLat,
                     seLng = dto.seLng
-                )
+                ).apply {
+                    gameState = GameState.valueOf(dto.gameState)
+                }
             )
 
             ResponseEntity.noContent().build()
