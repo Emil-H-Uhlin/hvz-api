@@ -2,12 +2,12 @@ package com.hvz.controllers
 
 import com.hvz.exceptions.GameNotFoundException
 import com.hvz.misc.GameState
-import com.hvz.models.Game
 import com.hvz.models.GameAddDTO
 import com.hvz.models.GameEditDTO
 import com.hvz.services.game.GameService
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
+import java.net.URI
 
 @RestController
 @RequestMapping(path = ["api/v1/"])
@@ -66,5 +66,11 @@ class GameController(val gameService: GameService) {
     }
 
     @PostMapping("games")
-    fun addGame(@RequestBody game: GameAddDTO) = gameService.add(game.toEntity())
+    fun addGame(@RequestBody dto: GameAddDTO): ResponseEntity<Any> {
+        val game = gameService.add(dto.toEntity())
+
+        val uri = URI.create("api/v1/games/${game.id}")
+
+        return ResponseEntity.created(uri).build()
+    }
 }
