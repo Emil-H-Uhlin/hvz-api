@@ -33,8 +33,7 @@ data class Game(
     @Column(name = "se_lng", nullable = false)
     val seLng: Double,
 
-    @OneToMany
-    @JoinColumn(name = "player_ids")
+    @OneToMany(mappedBy = "game")
     val players: Collection<Player> = listOf(),
 
     @Id

@@ -22,7 +22,7 @@ data class Player(
     val biteCode: String,
 
     @ManyToOne
-    @JoinColumn(name = "game_id", nullable = false)
+    @JoinColumn(name = "game")
     var game: Game? = null,
 
     @Id
