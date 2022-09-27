@@ -75,15 +75,26 @@ class KillController(val killService: KillService,
             if (game.gameState != GameState.PLAYING)
                 return ResponseEntity.badRequest().build()
 
-            val kill = Kill(dto.story,
-                dto.lat,
-                dto.lng).apply {
-                    killer = playerService.findById(dto.killerId)
-                    victim = playerService.findByBiteCode(dto.victimBiteCode)
+            val killer = playerService.findById(dto.killerId)
+            val victim = playerService.findByBiteCode(dto.victimBiteCode).copy(human = false)
+
+            // killer is human or victim was already dead
+            if (killer.human || victim.human)
+                ResponseEntity.badRequest().build<Nothing>()
+
+            playerService.update(victim)
+
+            val addedKill = killService.add(
+                Kill(
+                    dto.story,
+                    dto.lat,
+                    dto.lng
+                ).apply {
+                    this.killer = killer
+                    this.victim = victim
                     this.game = game
                 }
-
-            val addedKill = killService.add(kill)
+            )
 
             val uri = URI.create("api/v1/kills/${addedKill.id}")
 
