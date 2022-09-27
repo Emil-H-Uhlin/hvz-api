@@ -42,33 +42,33 @@ data class Game(
     @Column(name = "id")
     val id: Int = -1
 ) {
-    data class ReadDTO(val id: Int, val gameName: String,
-        val description: String, val gameState: String,
-        val nwLat: Double, val nwLng: Double,
-        val seLat: Double, val seLng: Double,
-        val players: Collection<Int>,
-    )
-
-    data class AddDTO(val gameName: String, val description: String,
-                      val nwLat: Double, val nwLng: Double,
-                      val seLat: Double, val seLng: Double) {
-        fun toEntity() = Game(
-            gameName, description,
-            GameState.REGISTERING,
-            nwLat, nwLng, seLat, seLng
-        )
-    }
-
-    data class EditDTO(val id: Int, val gameName: String,
-                       val description: String,
-                       val gameState: String,
-                       val nwLat: Double, val nwLng: Double,
-                       val seLat: Double, val seLng: Double)
-
-    fun toReadDto() = ReadDTO(id, gameName,
+    fun toReadDto() = GameReadDTO(id, gameName,
         description, gameState.name,
         nwLat, nwLng,
         seLat, seLng,
         players.map { it.id }
     )
 }
+
+data class GameReadDTO(val id: Int, val gameName: String,
+                       val description: String, val gameState: String,
+                       val nwLat: Double, val nwLng: Double,
+                       val seLat: Double, val seLng: Double,
+                       val players: Collection<Int>,
+)
+
+data class GameAddDTO(val gameName: String, val description: String,
+                      val nwLat: Double, val nwLng: Double,
+                      val seLat: Double, val seLng: Double) {
+    fun toEntity() = Game(
+        gameName, description,
+        GameState.REGISTERING,
+        nwLat, nwLng, seLat, seLng
+    )
+}
+
+data class GameEditDTO(val id: Int, val gameName: String,
+                       val description: String,
+                       val gameState: String,
+                       val nwLat: Double, val nwLng: Double,
+                       val seLat: Double, val seLng: Double)
