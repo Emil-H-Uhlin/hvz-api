@@ -7,6 +7,7 @@ import com.hvz.misc.GameState
 import com.hvz.models.Kill
 import com.hvz.models.KillAddDTO
 import com.hvz.models.KillEditDTO
+import com.hvz.models.Player
 import com.hvz.services.game.GameService
 import com.hvz.services.kill.KillService
 import com.hvz.services.player.PlayerService
@@ -75,15 +76,31 @@ class KillController(val killService: KillService,
             if (game.gameState != GameState.PLAYING)
                 return ResponseEntity.badRequest().build()
 
-            val kill = Kill(dto.story,
-                dto.lat,
-                dto.lng).apply {
-                    killer = playerService.findById(dto.killerId)
-                    victim = playerService.findByBiteCode(dto.victimBiteCode)
+            val killer = playerService.findById(dto.killerId)
+
+            val victim: Player
+
+            playerService.findByBiteCode(dto.victimBiteCode).apply {
+                victim = copy(human = !this.human)
+            }
+
+            // killer is human or victim was already dead
+            if (killer.human || victim.human)
+                ResponseEntity.badRequest().build<Nothing>()
+
+            playerService.update(victim)
+
+            val addedKill = killService.add(
+                Kill(
+                    dto.story,
+                    dto.lat,
+                    dto.lng
+                ).apply {
+                    this.killer = killer
+                    this.victim = victim
                     this.game = game
                 }
-
-            val addedKill = killService.add(kill)
+            )
 
             val uri = URI.create("api/v1/kills/${addedKill.id}")
 
