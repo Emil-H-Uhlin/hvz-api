@@ -30,13 +30,14 @@ data class Game(
     @Column(name = "se_lng", nullable = false)
     val seLng: Double,
 
+    @Column(name = "game_state", nullable = false)
+    val gameState: GameState = GameState.REGISTERING,
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     val id: Int = -1
 ) {
-    @Column(name = "game_state", nullable = false)
-    lateinit var gameState: GameState
 
     @OneToMany(mappedBy = "game")
     val players: Collection<Player> = setOf()
@@ -69,9 +70,7 @@ data class GameAddDTO(val gameName: String, val description: String,
         gameName, description,
         nwLat, nwLng,
         seLat, seLng
-    ).apply {
-        gameState = GameState.REGISTERING
-    }
+    )
 }
 
 data class GameEditDTO(val id: Int, val gameName: String,

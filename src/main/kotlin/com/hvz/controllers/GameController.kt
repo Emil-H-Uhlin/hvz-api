@@ -41,10 +41,9 @@ class GameController(val gameService: GameService) {
                     nwLat = dto.nwLat,
                     nwLng = dto.nwLng,
                     seLat = dto.seLat,
-                    seLng = dto.seLng
-                ).apply {
+                    seLng = dto.seLng,
                     gameState = GameState.valueOf(dto.gameState)
-                }
+                )
             )
 
             ResponseEntity.noContent().build()
