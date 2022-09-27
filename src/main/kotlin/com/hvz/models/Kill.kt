@@ -41,3 +41,15 @@ data class Kill(
     @JoinColumn(name = "game_id")
     lateinit var game: Game
 }
+
+data class KillAddDTO(val story: String,
+                      val lat: Double,
+                      val lng: Double,
+                      val victimBiteCode: String,
+                      val killerId: Int,
+)
+
+data class KillEditDTO(val story: String,
+                       val lat: Double,
+                       val lng: Double,
+)
