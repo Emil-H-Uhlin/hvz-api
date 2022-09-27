@@ -41,11 +41,15 @@ data class Game(
     @OneToMany(mappedBy = "game")
     val players: Collection<Player> = setOf()
 
+    @OneToMany(mappedBy = "game")
+    val kills: Collection<Kill> = setOf()
+
     fun toReadDto() = GameReadDTO(id, gameName,
         description, gameState.name,
         nwLat, nwLng,
         seLat, seLng,
-        players.map { it.id }
+        players.map { it.id },
+        kills.map { it.id }
     )
 }
 
@@ -54,6 +58,7 @@ data class GameReadDTO(val id: Int, val gameName: String,
                        val nwLat: Double, val nwLng: Double,
                        val seLat: Double, val seLng: Double,
                        val players: Collection<Int>,
+                       val kills: Collection<Int>
 )
 
 data class GameAddDTO(val gameName: String, val description: String,

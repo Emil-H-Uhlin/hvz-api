@@ -40,16 +40,23 @@ data class Kill(
     @ManyToOne
     @JoinColumn(name = "game_id")
     lateinit var game: Game
+
+    fun toReadDto() = KillReadDTO(
+        id, story, lat, lng,
+        killer.id, victim.id,
+        game.id
+    )
 }
 
-data class KillAddDTO(val story: String,
-                      val lat: Double,
-                      val lng: Double,
-                      val victimBiteCode: String,
-                      val killerId: Int,
+data class KillAddDTO(val story: String, val lat: Double,
+                      val lng: Double, val victimBiteCode: String,
+                      val killerId: Int, val gameId: Int,
 )
 
-data class KillEditDTO(val story: String,
-                       val lat: Double,
-                       val lng: Double,
+data class KillEditDTO(val story: String, val lat: Double, val lng: Double)
+
+data class KillReadDTO(val id: Int, val story: String,
+                       val lat: Double, val lng: Double,
+                       val killerId: Int, val victimId: Int,
+                       val gameId: Int,
 )
