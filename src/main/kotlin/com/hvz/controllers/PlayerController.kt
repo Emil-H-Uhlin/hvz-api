@@ -79,9 +79,7 @@ class PlayerController(val playerService: PlayerService,
                 return ResponseEntity.badRequest().build()
             }
 
-            val player = playerService.add(dto.toEntity().apply {
-                this.game = game
-            })
+            val player = playerService.add(dto.toEntity().copy(game = game))
 
             val uri = URI.create("api/v1/players/${player.id}")
 

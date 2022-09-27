@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import java.net.URI
+import javax.transaction.Transactional
 
 @RestController
 @RequestMapping(path = ["api/v1/"])
@@ -66,6 +67,7 @@ class KillController(val killService: KillService,
         }
     }
 
+    @Transactional
     @PostMapping("games/{game_id}/kills")
     fun addKill(@PathVariable(name = "game_id") gameId: Int,
                 @RequestBody dto: KillAddDTO): ResponseEntity<Any> {
@@ -81,7 +83,7 @@ class KillController(val killService: KillService,
             val victim: Player
 
             playerService.findByBiteCode(dto.victimBiteCode).apply {
-                victim = copy(human = !this.human)
+                victim = copy(human = !human)
             }
 
             // killer is human or victim was already dead
@@ -94,12 +96,11 @@ class KillController(val killService: KillService,
                 Kill(
                     dto.story,
                     dto.lat,
-                    dto.lng
-                ).apply {
-                    this.killer = killer
-                    this.victim = victim
-                    this.game = game
-                }
+                    dto.lng,
+                    killer = killer,
+                    victim = victim,
+                    game = game
+                )
             )
 
             val uri = URI.create("api/v1/kills/${addedKill.id}")
