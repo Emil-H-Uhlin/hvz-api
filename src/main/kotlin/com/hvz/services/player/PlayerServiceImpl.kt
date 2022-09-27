@@ -15,8 +15,8 @@ class PlayerServiceImpl(val playerRepository: PlayerRepository): PlayerService {
 
     override fun findAll(): Collection<Player> = playerRepository.findAll()
 
-    override fun add(entity: Player) {
-        playerRepository.save(entity)
+    override fun add(entity: Player): Player {
+        return playerRepository.save(entity)
     }
 
     override fun update(entity: Player) {

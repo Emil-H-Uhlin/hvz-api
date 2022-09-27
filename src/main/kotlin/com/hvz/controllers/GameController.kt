@@ -3,6 +3,8 @@ package com.hvz.controllers
 import com.hvz.exceptions.GameNotFoundException
 import com.hvz.misc.GameState
 import com.hvz.models.Game
+import com.hvz.models.GameAddDTO
+import com.hvz.models.GameEditDTO
 import com.hvz.services.game.GameService
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
@@ -25,7 +27,7 @@ class GameController(val gameService: GameService) {
     }
 
     @PutMapping("games/{id}")
-    fun update(@PathVariable id: Int, @RequestBody dto: Game.EditDTO): ResponseEntity<Any> {
+    fun update(@PathVariable id: Int, @RequestBody dto: GameEditDTO): ResponseEntity<Any> {
         if (dto.id != id)
             return ResponseEntity.badRequest().build()
 
@@ -33,15 +35,15 @@ class GameController(val gameService: GameService) {
             val game = gameService.findById(id)
 
             gameService.update(
-                Game(dto.gameName,
-                    dto.description,
-                    GameState.valueOf(dto.gameState),
-                    dto.nwLat,
-                    dto.nwLng,
-                    dto.seLat,
-                    dto.seLng,
-                    game.players,
-                    game.id)
+                game.copy(
+                    gameName = dto.gameName,
+                    description = dto.description,
+                    gameState = GameState.valueOf(dto.gameState),
+                    nwLat = dto.nwLat,
+                    nwLng = dto.nwLng,
+                    seLat = dto.seLat,
+                    seLng = dto.seLng
+                )
             )
 
             ResponseEntity.noContent().build()
@@ -64,5 +66,5 @@ class GameController(val gameService: GameService) {
     }
 
     @PostMapping("games")
-    fun addGame(@RequestBody game: Game.AddDTO) = gameService.add(game.toEntity())
+    fun addGame(@RequestBody game: GameAddDTO) = gameService.add(game.toEntity())
 }

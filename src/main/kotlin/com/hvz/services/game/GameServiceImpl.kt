@@ -15,8 +15,8 @@ class GameServiceImpl(val gameRepository: GameRepository) : GameService {
 
     override fun findAll(): Collection<Game> = gameRepository.findAll()
 
-    override fun add(entity: Game) {
-        gameRepository.save(entity)
+    override fun add(entity: Game): Game {
+        return gameRepository.save(entity)
     }
 
     override fun update(entity: Game) {
