@@ -18,9 +18,6 @@ data class Game(
     @Column(name = "description")
     val description: String,
 
-    @Column(name = "game_state", nullable = false)
-    val gameState: GameState,
-
     @Column(name = "nw_lat", nullable = false)
     val nwLat: Double,
 
@@ -33,14 +30,17 @@ data class Game(
     @Column(name = "se_lng", nullable = false)
     val seLng: Double,
 
-    @OneToMany(mappedBy = "game")
-    val players: Collection<Player> = listOf(),
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     val id: Int = -1
 ) {
+    @Column(name = "game_state", nullable = false)
+    lateinit var gameState: GameState
+
+    @OneToMany(mappedBy = "game")
+    val players: Collection<Player> = setOf()
+
     fun toReadDto() = GameReadDTO(id, gameName,
         description, gameState.name,
         nwLat, nwLng,
@@ -61,9 +61,11 @@ data class GameAddDTO(val gameName: String, val description: String,
                       val seLat: Double, val seLng: Double) {
     fun toEntity() = Game(
         gameName, description,
-        GameState.REGISTERING,
-        nwLat, nwLng, seLat, seLng
-    )
+        nwLat, nwLng,
+        seLat, seLng
+    ).apply {
+        gameState = GameState.REGISTERING
+    }
 }
 
 data class GameEditDTO(val id: Int, val gameName: String,
