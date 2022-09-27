@@ -53,7 +53,7 @@ data class KillAddDTO(val story: String, val lat: Double,
                       val killerId: Int, val gameId: Int,
 )
 
-data class KillEditDTO(val story: String, val lat: Double, val lng: Double)
+data class KillEditDTO(val id: Int, val story: String, val lat: Double, val lng: Double)
 
 data class KillReadDTO(val id: Int, val story: String,
                        val lat: Double, val lng: Double,
