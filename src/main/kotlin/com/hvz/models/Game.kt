@@ -41,4 +41,18 @@ data class Game(
     @JoinColumn(name = "player_ids")
     val players: Collection<Player>,
 
-)
+) {
+    data class ReadDTO(val id: Int, val gameName: String,
+        val description: String, val gameState: String,
+        val nwLat: Double, val nwLng: Double,
+        val seLat: Double, val seLng: Double,
+        val players: Collection<Int>
+    )
+
+    fun toReadDto() = ReadDTO(id, gameName,
+        description, gameState.name,
+        nwLat, nwLng,
+        seLat, seLng,
+        players.map { it.id }
+    )
+}
