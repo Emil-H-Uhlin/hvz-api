@@ -15,23 +15,24 @@ data class Player(
     @Column(name = "is_human", nullable = false)
     val human: Boolean,
 
+    @Column(name = "bite_code", nullable = false, unique = true)
+    val biteCode: String? = null,
+
+    @ManyToOne
+    @JoinColumn(name = "game_id")
+    val game: Game? = null,
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     val id: Int = -1
 ) {
-
-    @ManyToOne
-    @JoinColumn(name = "game_id")
-    lateinit var game: Game
-
-    @Column(name = "bite_code", nullable = false, unique = true)
-    lateinit var biteCode: String
-
     @Column(name = "is_patient_zero", nullable = false)
     val patientZero = !human
 
-    fun toReadDto() = PlayerReadDTO(id, human, patientZero, biteCode, game.id)
+    fun toReadDto() = PlayerReadDTO(id, human, patientZero,
+        biteCode ?: throw Exception("No bitecode!"),
+        game?.id ?: throw Exception("No game!?"))
 }
 
 data class PlayerReadDTO(val id: Int, val human: Boolean,
@@ -40,9 +41,7 @@ data class PlayerReadDTO(val id: Int, val human: Boolean,
 )
 
 data class PlayerAddDTO(val human: Boolean) {
-    fun toEntity() = Player(human).apply {
-        biteCode = UUID.randomUUID().toString()
-    }
+    fun toEntity() = Player(human = human, biteCode = UUID.randomUUID().toString())
 }
 
 data class PlayerEditDTO(val id: Int, val human: Boolean)
