@@ -1,6 +1,7 @@
 package com.hvz.controllers
 
 import com.hvz.exceptions.GameNotFoundException
+import com.hvz.misc.GameState
 import com.hvz.models.Game
 import com.hvz.services.game.GameService
 import org.springframework.http.ResponseEntity
@@ -24,13 +25,24 @@ class GameController(val gameService: GameService) {
     }
 
     @PutMapping("games/{id}")
-    fun update(@PathVariable id: Int, @RequestBody game: Game): ResponseEntity<Any> {
-        if (game.id != id)
+    fun update(@PathVariable id: Int, @RequestBody dto: Game.EditDTO): ResponseEntity<Any> {
+        if (dto.id != id)
             return ResponseEntity.badRequest().build()
 
         return try {
-            gameService.findById(id)
-            gameService.update(game)
+            val game = gameService.findById(id)
+
+            gameService.update(
+                Game(dto.gameName,
+                    dto.description,
+                    GameState.valueOf(dto.gameState),
+                    dto.nwLat,
+                    dto.nwLng,
+                    dto.seLat,
+                    dto.seLng,
+                    game.players,
+                    game.id)
+            )
 
             ResponseEntity.noContent().build()
         } catch (gameNotFoundException: GameNotFoundException) {
@@ -52,5 +64,5 @@ class GameController(val gameService: GameService) {
     }
 
     @PostMapping("games")
-    fun addGame(@RequestBody game: Game) = gameService.add(game)
+    fun addGame(@RequestBody game: Game.AddDTO) = gameService.add(game.toEntity())
 }
