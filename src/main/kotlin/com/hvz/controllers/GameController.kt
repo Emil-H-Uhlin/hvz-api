@@ -33,15 +33,15 @@ class GameController(val gameService: GameService) {
             val game = gameService.findById(id)
 
             gameService.update(
-                Game(dto.gameName,
-                    dto.description,
-                    GameState.valueOf(dto.gameState),
-                    dto.nwLat,
-                    dto.nwLng,
-                    dto.seLat,
-                    dto.seLng,
-                    game.players,
-                    game.id)
+                game.copy(
+                    gameName = dto.gameName,
+                    description = dto.description,
+                    gameState = GameState.valueOf(dto.gameState),
+                    nwLat = dto.nwLat,
+                    nwLng = dto.nwLng,
+                    seLat = dto.seLat,
+                    seLng = dto.seLng
+                )
             )
 
             ResponseEntity.noContent().build()
