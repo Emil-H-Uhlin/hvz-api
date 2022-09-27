@@ -11,13 +11,13 @@ import org.springframework.web.bind.annotation.*
 class GameController(val gameService: GameService) {
 
     @GetMapping("games")
-    fun findAll() = ResponseEntity.ok(gameService.findAll())
+    fun findAll() = ResponseEntity.ok(gameService.findAll().map { it.toReadDto() })
 
     @GetMapping("games/{id}")
     fun findById(@PathVariable id: Int): ResponseEntity<Any> {
         return try {
             val game = gameService.findById(id)
-            ResponseEntity.ok(game)
+            ResponseEntity.ok(game.toReadDto())
         } catch (gameNotFoundException: GameNotFoundException) {
             ResponseEntity.notFound().build()
         }
