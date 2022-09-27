@@ -7,6 +7,7 @@ import com.hvz.misc.GameState
 import com.hvz.models.Kill
 import com.hvz.models.KillAddDTO
 import com.hvz.models.KillEditDTO
+import com.hvz.models.Player
 import com.hvz.services.game.GameService
 import com.hvz.services.kill.KillService
 import com.hvz.services.player.PlayerService
@@ -76,7 +77,12 @@ class KillController(val killService: KillService,
                 return ResponseEntity.badRequest().build()
 
             val killer = playerService.findById(dto.killerId)
-            val victim = playerService.findByBiteCode(dto.victimBiteCode).copy(human = false)
+
+            val victim: Player
+
+            playerService.findByBiteCode(dto.victimBiteCode).apply {
+                victim = copy(human = !this.human)
+            }
 
             // killer is human or victim was already dead
             if (killer.human || victim.human)
