@@ -1,3 +1,6 @@
 package com.hvz.exceptions
 
-class PlayerNotFoundException(id: Int) : RuntimeException("There is no player with id $id")
+class PlayerNotFoundException : RuntimeException {
+    constructor(id: Int): super("No player found with id $id")
+    constructor(biteCode: String): super("No player found with id $biteCode")
+}

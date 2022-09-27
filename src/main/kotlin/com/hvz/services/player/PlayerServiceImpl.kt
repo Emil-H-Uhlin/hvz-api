@@ -7,7 +7,9 @@ import org.springframework.stereotype.Service
 
 @Service
 class PlayerServiceImpl(val playerRepository: PlayerRepository): PlayerService {
-    override fun findByBiteCode(biteCode: String) = findAll().find { it.biteCode == biteCode }
+    override fun findByBiteCode(biteCode: String) = findAll().find {
+        it.biteCode == biteCode
+    } ?: throw PlayerNotFoundException(biteCode)
 
     override fun findById(id: Int): Player = playerRepository.findById(id)
         .orElseThrow {
