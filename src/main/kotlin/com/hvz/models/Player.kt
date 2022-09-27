@@ -9,7 +9,7 @@ import javax.persistence.Id
 import javax.persistence.JoinColumn
 import javax.persistence.ManyToOne
 
-@Entity
+@Entity(name = "players")
 data class Player(
 
     @Column(name = "is_human", nullable = false)

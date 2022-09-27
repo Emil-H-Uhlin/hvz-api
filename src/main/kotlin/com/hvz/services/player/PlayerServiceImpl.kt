@@ -3,11 +3,14 @@ package com.hvz.services.player
 import com.hvz.exceptions.PlayerNotFoundException
 import com.hvz.models.Player
 import com.hvz.repositories.PlayerRepository
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 
 @Service
 class PlayerServiceImpl(val playerRepository: PlayerRepository): PlayerService {
+    override fun findByBiteCode(biteCode: String) = findAll().find {
+        it.biteCode == biteCode
+    } ?: throw PlayerNotFoundException(biteCode)
+
     override fun findById(id: Int): Player = playerRepository.findById(id)
         .orElseThrow {
             PlayerNotFoundException(id)
