@@ -58,12 +58,13 @@ data class GameReadDTO(val id: Int, val gameName: String,
                        val nwLat: Double, val nwLng: Double,
                        val seLat: Double, val seLng: Double,
                        val players: Collection<Int>,
-                       val kills: Collection<Int>
+                       val kills: Collection<Int>,
 )
 
 data class GameAddDTO(val gameName: String, val description: String,
                       val nwLat: Double, val nwLng: Double,
-                      val seLat: Double, val seLng: Double) {
+                      val seLat: Double, val seLng: Double,
+) {
     fun toEntity() = Game(
         gameName, description,
         nwLat, nwLng,
@@ -77,4 +78,5 @@ data class GameEditDTO(val id: Int, val gameName: String,
                        val description: String,
                        val gameState: String,
                        val nwLat: Double, val nwLng: Double,
-                       val seLat: Double, val seLng: Double)
+                       val seLat: Double, val seLng: Double,
+)
