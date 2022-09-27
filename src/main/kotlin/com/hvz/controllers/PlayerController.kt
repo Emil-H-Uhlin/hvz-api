@@ -78,7 +78,7 @@ class PlayerController(val playerService: PlayerService,
             if (game.gameState != GameState.REGISTERING) {
                 return ResponseEntity.badRequest().build()
             }
-            
+
             val player = playerService.add(dto.toEntity().apply {
                 this.game = game
             })
