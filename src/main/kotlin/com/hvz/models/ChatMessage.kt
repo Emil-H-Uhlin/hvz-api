@@ -22,6 +22,10 @@ data class ChatMessage(
     @JoinColumn(name = "sender_id")
     val sender: Player? = null,
 
+    @ManyToOne
+    @JoinColumn(name = "game_id")
+    val game: Game? = null,
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Int = -1,
@@ -30,7 +34,8 @@ data class ChatMessage(
         zombieGlobal,
         humanGlobal,
         messageTime,
-        sender?.id ?: -1
+        sender?.id ?: -1,
+        game?.id ?: -1
     )
 }
 
@@ -39,6 +44,7 @@ data class ChatMessageReadDTO(val id: Int, val message: String,
                               val humanGlobal: Boolean,
                               val messageTime: Timestamp,
                               val sender: Int,
+                              val game: Int,
 )
 
 data class ChatMessageEditDTO(val id: Int, val message: String,
