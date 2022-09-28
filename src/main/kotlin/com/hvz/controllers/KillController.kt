@@ -12,18 +12,13 @@ import com.hvz.services.game.GameService
 import com.hvz.services.kill.KillService
 import com.hvz.services.player.PlayerService
 import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.PutMapping
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 import java.net.URI
 import javax.transaction.Transactional
 
 @RestController
 @RequestMapping(path = ["api/v1/"])
+@CrossOrigin(origins = ["*"])
 class KillController(val killService: KillService,
                      val gameService: GameService,
                      val playerService: PlayerService,

@@ -11,6 +11,7 @@ import com.hvz.services.game.GameService
 import com.hvz.services.player.PlayerService
 import org.apache.coyote.Response
 import org.springframework.http.ResponseEntity
+import org.springframework.web.bind.annotation.CrossOrigin
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
@@ -23,6 +24,7 @@ import java.net.URI
 
 @RestController
 @RequestMapping(path = ["api/v1/"])
+@CrossOrigin(origins = ["*"])
 class ChatController(private val chatService: ChatService,
                      private val gameService: GameService,
                      private val playerService: PlayerService) {
