@@ -83,7 +83,7 @@ class KillController(val killService: KillService,
             val victim: Player
 
             playerService.findByBiteCode(dto.victimBiteCode).apply {
-                victim = copy(human = !human)
+                victim = copy(human = !human, patientZero = patientZero)
             }
 
             // killer is human or victim was already dead

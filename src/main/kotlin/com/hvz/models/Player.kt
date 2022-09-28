@@ -15,6 +15,9 @@ data class Player(
     @Column(name = "is_human", nullable = false)
     val human: Boolean,
 
+    @Column(name = "is_patient_zero", nullable = false)
+    val patientZero: Boolean = !human,
+
     @Column(name = "bite_code", nullable = false, unique = true)
     val biteCode: String? = null,
 
@@ -27,8 +30,6 @@ data class Player(
     @Column(name = "id")
     val id: Int = -1
 ) {
-    @Column(name = "is_patient_zero", nullable = false)
-    val patientZero = !human
 
     fun toReadDto() = PlayerReadDTO(id, human, patientZero,
         biteCode ?: throw Exception("No bitecode!"),
