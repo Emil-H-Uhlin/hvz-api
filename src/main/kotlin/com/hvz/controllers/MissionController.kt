@@ -53,7 +53,7 @@ class MissionController(private val missionService: MissionService,
         }
     }
 
-    @PostMapping("games/{game_id}/kills")
+    @PostMapping("games/{game_id}/missions")
     fun addMission(@PathVariable(name = "game_id") gameId: Int,
                    @RequestBody dto: MissionAddDTO): ResponseEntity<Any> {
 
