@@ -11,6 +11,7 @@ import com.hvz.services.game.GameService
 import com.hvz.services.player.PlayerService
 import org.apache.coyote.Response
 import org.springframework.http.ResponseEntity
+import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
@@ -79,6 +80,19 @@ class ChatController(private val chatService: ChatService,
             ResponseEntity.notFound().build()
         } catch (playerNotFoundException: PlayerNotFoundException) {
             ResponseEntity.notFound().build()
+        }
+    }
+
+    @DeleteMapping("chat/{id}")
+    fun deleteMessage(@PathVariable id: Int): ResponseEntity<Any> {
+
+        return try {
+            chatService.findById(id)
+            chatService.deleteById(id)
+
+            ResponseEntity.noContent().build()
+        } catch (chatMessageNotFoundException: ChatMessageNotFoundException) {
+            ResponseEntity.badRequest().build()
         }
     }
 }
