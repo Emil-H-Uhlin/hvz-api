@@ -1,0 +1,10 @@
+auth0:
+  audience: https://re-hvz.herokuapp.com/
+
+spring:
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          # Note the trailing slash is important!
+          issuer-uri: https://dev-imzcye6l.us.auth0.com/
