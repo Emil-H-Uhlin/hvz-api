@@ -10,6 +10,7 @@ import com.hvz.services.game.GameService
 import com.hvz.services.mission.MissionService
 import org.apache.coyote.Response
 import org.springframework.http.ResponseEntity
+import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
@@ -78,6 +79,18 @@ class MissionController(private val missionService: MissionService,
         }
         catch (gameNotFoundException: GameNotFoundException) {
             ResponseEntity.notFound().build()
+        }
+    }
+
+    @DeleteMapping("missions/{id}")
+    fun deleteMission(@PathVariable id : Int): ResponseEntity<Any> {
+        return try {
+            missionService.findById(id)
+            missionService.deleteById(id)
+
+            ResponseEntity.noContent().build()
+        } catch (missionNotFoundException: MissionNotFoundException) {
+            ResponseEntity.badRequest().build()
         }
     }
 }
