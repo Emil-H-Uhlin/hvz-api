@@ -35,20 +35,26 @@ public class SecurityConfig {
 	
 	@Bean
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-			
         /*
         This is where we configure the security required for our endpoints and setup our app to serve as
         an OAuth2 Resource Server, using JWT validation.
         */
-		http.csrf().disable()
+		http
+				.csrf().disable()
 				.sessionManagement().disable()
 				.authorizeRequests(
-						authorize -> authorize
-								             .antMatchers(AUTH_WHITELIST).permitAll()
-								             .antMatchers("/api/v1/players", "/api/v1/chat",
-										             "/api/v1/kills", "/api/v1/missions").hasRole("admin")
-								             .antMatchers("api/v1/games").authenticated()
-								             .anyRequest().permitAll()
+				authorize
+						-> authorize
+								   .mvcMatchers("/v2/api-docs",
+										   "/v3/api-docs",
+										   "/swagger-resources/**",
+										   "/swagger-ui/**").permitAll()
+								   .mvcMatchers("/api/v1/chat/**",
+										   "/api/v1/kills/**",
+										   "/api/v1/missions/**",
+										   "/api/v1/players/**").hasRole("admin")
+								   .mvcMatchers("/api/v1/games/**").authenticated()
+								   .anyRequest().permitAll()
 				)
 				.cors()
 				.and().oauth2ResourceServer().jwt();
