@@ -9,7 +9,6 @@ import com.hvz.models.ChatMessageEditDTO
 import com.hvz.services.chat.ChatService
 import com.hvz.services.game.GameService
 import com.hvz.services.player.PlayerService
-import org.apache.coyote.Response
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.CrossOrigin
 import org.springframework.web.bind.annotation.DeleteMapping
@@ -29,6 +28,7 @@ class ChatController(private val chatService: ChatService,
                      private val gameService: GameService,
                      private val playerService: PlayerService) {
 
+    //region Admin
     @GetMapping("chat")
     fun findAll() = ResponseEntity.ok(chatService.findAll().map { it.toReadDto() })
 
@@ -53,6 +53,34 @@ class ChatController(private val chatService: ChatService,
 
             ResponseEntity.noContent().build()
         } catch (chatMessageNotFoundException: ChatMessageNotFoundException) {
+            ResponseEntity.notFound().build()
+        }
+    }
+
+    @DeleteMapping("chat/{id}")
+    fun deleteMessage(@PathVariable id: Int): ResponseEntity<Any> {
+
+        return try {
+            chatService.findById(id)
+            chatService.deleteById(id)
+
+            ResponseEntity.noContent().build()
+        } catch (chatMessageNotFoundException: ChatMessageNotFoundException) {
+            ResponseEntity.badRequest().build()
+        }
+    }
+    //endregion
+
+    @GetMapping("games/{game_id}/chat")
+    fun findAll(@PathVariable(name = "game_id") gameId: Int): ResponseEntity<Any> {
+
+        return try {
+            val game = gameService.findById(gameId)
+
+            // TODO: get correct chat depending on player human status
+
+            ResponseEntity.ok(game.messages.map { it.id })
+        } catch (gameNotFoundException: GameNotFoundException) {
             ResponseEntity.notFound().build()
         }
     }
@@ -82,19 +110,6 @@ class ChatController(private val chatService: ChatService,
             ResponseEntity.notFound().build()
         } catch (playerNotFoundException: PlayerNotFoundException) {
             ResponseEntity.notFound().build()
-        }
-    }
-
-    @DeleteMapping("chat/{id}")
-    fun deleteMessage(@PathVariable id: Int): ResponseEntity<Any> {
-
-        return try {
-            chatService.findById(id)
-            chatService.deleteById(id)
-
-            ResponseEntity.noContent().build()
-        } catch (chatMessageNotFoundException: ChatMessageNotFoundException) {
-            ResponseEntity.badRequest().build()
         }
     }
 }

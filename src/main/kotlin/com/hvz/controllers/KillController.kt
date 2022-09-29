@@ -21,21 +21,11 @@ import javax.transaction.Transactional
 @CrossOrigin(origins = ["*"])
 class KillController(val killService: KillService,
                      val gameService: GameService,
-                     val playerService: PlayerService,
-) {
+                     val playerService: PlayerService) {
 
+    //region Admin
     @GetMapping("kills")
     fun findAll() = ResponseEntity.ok(killService.findAll().map { it.toReadDto() })
-
-    @GetMapping("games/{game_id}/kills")
-    fun findAll(@PathVariable(name = "game_id") gameId: Int): ResponseEntity<Any> {
-        return try {
-            val game = gameService.findById(gameId)
-            ResponseEntity.ok(game.kills.map { it.toReadDto() })
-        } catch (gameNotFoundException: GameNotFoundException) {
-            ResponseEntity.notFound().build()
-        }
-    }
 
     @GetMapping("kills/{id}")
     fun findById(@PathVariable id: Int) = ResponseEntity.ok(killService.findById(id).toReadDto())
@@ -61,8 +51,18 @@ class KillController(val killService: KillService,
             ResponseEntity.notFound().build()
         }
     }
+    //endregion
 
-    @Transactional
+    @GetMapping("games/{game_id}/kills")
+    fun findAll(@PathVariable(name = "game_id") gameId: Int): ResponseEntity<Any> {
+        return try {
+            val game = gameService.findById(gameId)
+            ResponseEntity.ok(game.kills.map { it.toReadDto() })
+        } catch (gameNotFoundException: GameNotFoundException) {
+            ResponseEntity.notFound().build()
+        }
+    }
+
     @PostMapping("games/{game_id}/kills")
     fun addKill(@PathVariable(name = "game_id") gameId: Int,
                 @RequestBody dto: KillAddDTO): ResponseEntity<Any> {
@@ -109,6 +109,4 @@ class KillController(val killService: KillService,
             ResponseEntity.notFound().build()
         }
     }
-
-
 }

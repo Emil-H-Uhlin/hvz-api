@@ -17,6 +17,8 @@ import java.net.URI
 @CrossOrigin(origins = ["*"])
 class PlayerController(val playerService: PlayerService,
                        val gameService: GameService) {
+
+    //region Admin
     @GetMapping("players")
     fun findAll() = ResponseEntity.ok(playerService.findAll().map { it.toReadDto() })
 
@@ -61,6 +63,7 @@ class PlayerController(val playerService: PlayerService,
             ResponseEntity.badRequest().build()
         }
     }
+    //endregion
 
     @PostMapping("games/{game_id}/players")
     fun addPlayer(@PathVariable(name = "game_id") gameId: Int,
@@ -82,4 +85,16 @@ class PlayerController(val playerService: PlayerService,
             ResponseEntity.notFound().build()
         }
     }
+
+    @GetMapping("games/{game_id}/players")
+    fun findAll(@PathVariable(name = "game_id") gameId: Int): ResponseEntity<Any> {
+        return try {
+            val game = gameService.findById(gameId)
+
+            ResponseEntity.ok(game.players.map { it.toReadDto() })
+        } catch (gameNotFoundException: GameNotFoundException) {
+            ResponseEntity.notFound().build()
+        }
+    }
+
 }

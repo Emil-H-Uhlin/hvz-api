@@ -45,10 +45,6 @@ public class SecurityConfig {
 				.authorizeRequests(
 				authorize
 						-> authorize
-								   .mvcMatchers("/v2/api-docs",
-										   "/v3/api-docs",
-										   "/swagger-resources/**",
-										   "/swagger-ui/**").permitAll()
 								   .mvcMatchers("/api/v1/chat/**",
 										   "/api/v1/kills/**",
 										   "/api/v1/missions/**",
