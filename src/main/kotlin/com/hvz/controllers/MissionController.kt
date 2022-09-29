@@ -19,6 +19,7 @@ import java.net.URI
 class MissionController(private val missionService: MissionService,
                         private val gameService: GameService) {
 
+    //region Admin
     @GetMapping("missions")
     fun findAll() = ResponseEntity.ok(missionService.findAll().map { it.toReadDto() })
 
@@ -85,6 +86,18 @@ class MissionController(private val missionService: MissionService,
             ResponseEntity.noContent().build()
         } catch (missionNotFoundException: MissionNotFoundException) {
             ResponseEntity.badRequest().build()
+        }
+    }
+    //endregion
+
+    @GetMapping("games/{game_id}/missions")
+    fun findAll(@PathVariable(name = "game_id") gameId: Int): ResponseEntity<Any> {
+        return try {
+            val game = gameService.findById(gameId)
+
+            ResponseEntity.ok(game.missions.map { it.toReadDto() })
+        } catch (gameNotFoundException: GameNotFoundException) {
+            ResponseEntity.notFound().build()
         }
     }
 }
