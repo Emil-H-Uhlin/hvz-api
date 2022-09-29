@@ -11,6 +11,7 @@ import java.net.URI
 
 @RestController
 @RequestMapping(path = ["api/v1/"])
+@CrossOrigin(origins = ["*"])
 class GameController(val gameService: GameService) {
 
     @GetMapping("games")
