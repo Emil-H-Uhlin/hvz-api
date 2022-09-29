@@ -14,6 +14,30 @@ import java.net.URI
 @CrossOrigin(origins = ["*"])
 class GameController(val gameService: GameService) {
 
+    //region Admin
+    @DeleteMapping("games/{id}")
+    fun deleteById(@PathVariable id: Int): ResponseEntity<Any> {
+
+        return try {
+            gameService.findById(id)
+            gameService.deleteById(id)
+
+            ResponseEntity.noContent().build()
+        } catch (gameNotFoundException: GameNotFoundException) {
+            ResponseEntity.badRequest().build()
+        }
+    }
+
+    @PostMapping("games")
+    fun addGame(@RequestBody dto: GameAddDTO): ResponseEntity<Any> {
+        val game = gameService.add(dto.toEntity())
+
+        val uri = URI.create("api/v1/games/${game.id}")
+
+        return ResponseEntity.created(uri).build()
+    }
+    //endregion
+
     @GetMapping("games")
     fun findAll() = ResponseEntity.ok(gameService.findAll().map { it.toReadDto() })
 
@@ -51,27 +75,5 @@ class GameController(val gameService: GameService) {
         } catch (gameNotFoundException: GameNotFoundException) {
             ResponseEntity.badRequest().build()
         }
-    }
-
-    @DeleteMapping("games/{id}")
-    fun deleteById(@PathVariable id: Int): ResponseEntity<Any> {
-
-        return try {
-            gameService.findById(id)
-            gameService.deleteById(id)
-
-            ResponseEntity.noContent().build()
-        } catch (gameNotFoundException: GameNotFoundException) {
-            ResponseEntity.badRequest().build()
-        }
-    }
-
-    @PostMapping("games")
-    fun addGame(@RequestBody dto: GameAddDTO): ResponseEntity<Any> {
-        val game = gameService.add(dto.toEntity())
-
-        val uri = URI.create("api/v1/games/${game.id}")
-
-        return ResponseEntity.created(uri).build()
     }
 }
