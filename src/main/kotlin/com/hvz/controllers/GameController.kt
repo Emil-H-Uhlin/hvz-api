@@ -6,6 +6,8 @@ import com.hvz.models.GameAddDTO
 import com.hvz.models.GameEditDTO
 import com.hvz.services.game.GameService
 import org.springframework.http.ResponseEntity
+import org.springframework.security.core.annotation.AuthenticationPrincipal
+import org.springframework.security.oauth2.jwt.Jwt
 import org.springframework.web.bind.annotation.*
 import java.net.URI
 
@@ -29,7 +31,9 @@ class GameController(val gameService: GameService) {
     }
 
     @PostMapping("games")
-    fun addGame(@RequestBody dto: GameAddDTO): ResponseEntity<Any> {
+    fun addGame(@AuthenticationPrincipal jwt: Jwt,
+                @RequestBody dto: GameAddDTO): ResponseEntity<Any> {
+
         val game = gameService.add(dto.toEntity())
 
         val uri = URI.create("api/v1/games/${game.id}")
@@ -39,7 +43,19 @@ class GameController(val gameService: GameService) {
     //endregion
 
     @GetMapping("games")
-    fun findAll() = ResponseEntity.ok(gameService.findAll().map { it.toReadDto() })
+    fun findAll(@AuthenticationPrincipal jwt: Jwt): ResponseEntity<Any> {
+
+        println(jwt.tokenValue)
+
+        for (test in jwt.claims){
+            println(test)
+        }
+        for (permission in jwt.claims["scope"].toString().split(" ")) {
+            println(permission)
+        }
+
+        return ResponseEntity.ok(gameService.findAll().map { it.toReadDto() })
+    }
 
     @GetMapping("games/{id}")
     fun findById(@PathVariable id: Int): ResponseEntity<Any> {

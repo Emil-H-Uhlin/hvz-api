@@ -1,15 +1,15 @@
 package com.hvz.config
 
-import com.hvz.config.auth0.AudienceValidator
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
+import org.springframework.http.HttpMethod
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.oauth2.core.DelegatingOAuth2TokenValidator
-import org.springframework.security.oauth2.jwt.JwtDecoder
-import org.springframework.security.oauth2.jwt.JwtDecoders
-import org.springframework.security.oauth2.jwt.JwtValidators
-import org.springframework.security.oauth2.jwt.NimbusJwtDecoder
+import org.springframework.security.oauth2.core.OAuth2Error
+import org.springframework.security.oauth2.core.OAuth2TokenValidator
+import org.springframework.security.oauth2.core.OAuth2TokenValidatorResult
+import org.springframework.security.oauth2.jwt.*
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter
 import org.springframework.security.web.SecurityFilterChain
@@ -27,8 +27,9 @@ class SecurityConfig {
         cors()
             .and().sessionManagement().disable()
             .csrf().disable()
-            .authorizeHttpRequests {
-                it.anyRequest().permitAll()
+            .authorizeRequests {
+                it.mvcMatchers(HttpMethod.POST, "/api/v1/games").hasAuthority("games:create")
+                    .anyRequest().authenticated()
             }
             .oauth2ResourceServer()
             .jwt()
@@ -38,7 +39,7 @@ class SecurityConfig {
     }
 
     @Bean
-    fun jwtDecoder(): JwtDecoder = JwtDecoders.fromOidcIssuerLocation<NimbusJwtDecoder>(issuer).apply {
+    fun jwtDecoder(): NimbusJwtDecoder = JwtDecoders.fromOidcIssuerLocation<NimbusJwtDecoder>(issuer).apply {
         val audienceValidator = AudienceValidator(audience)
         val withIssuer = JwtValidators.createDefaultWithIssuer(issuer)
         val withAudience = DelegatingOAuth2TokenValidator(withIssuer, audienceValidator)
@@ -55,6 +56,17 @@ class SecurityConfig {
 
         return JwtAuthenticationConverter().apply {
             setJwtGrantedAuthoritiesConverter(grantedAuthoritiesConverter)
+        }
+    }
+
+    private class AudienceValidator(private val audience: String): OAuth2TokenValidator<Jwt> {
+
+        override fun validate(token: Jwt?): OAuth2TokenValidatorResult {
+            val err = OAuth2Error("invalid_token", "The required audience is missing", null)
+
+            return if (token?.audience!!.contains(audience))
+                OAuth2TokenValidatorResult.success()
+            else OAuth2TokenValidatorResult.failure(err)
         }
     }
 }
