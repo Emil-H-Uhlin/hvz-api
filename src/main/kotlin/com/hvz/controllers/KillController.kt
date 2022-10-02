@@ -12,6 +12,8 @@ import com.hvz.services.game.GameService
 import com.hvz.services.kill.KillService
 import com.hvz.services.player.PlayerService
 import org.springframework.http.ResponseEntity
+import org.springframework.security.core.annotation.AuthenticationPrincipal
+import org.springframework.security.oauth2.jwt.Jwt
 import org.springframework.web.bind.annotation.*
 import java.net.URI
 import javax.transaction.Transactional
@@ -25,14 +27,16 @@ class KillController(val killService: KillService,
 
     //region Admin
     @GetMapping("kills")
-    fun findAll() = ResponseEntity.ok(killService.findAll().map { it.toReadDto() })
+    fun findAll(@AuthenticationPrincipal token: Jwt) = ResponseEntity.ok(killService.findAll().map { it.toReadDto() })
 
     @GetMapping("kills/{id}")
-    fun findById(@PathVariable id: Int) = ResponseEntity.ok(killService.findById(id).toReadDto())
+    fun findById(@AuthenticationPrincipal token: Jwt, @PathVariable id: Int) = ResponseEntity.ok(killService.findById(id).toReadDto())
 
     @PutMapping("kills/{id}")
-    fun updateKill(@PathVariable id: Int,
+    fun updateKill(@AuthenticationPrincipal token: Jwt,
+                   @PathVariable id: Int,
                    @RequestBody dto: KillEditDTO): ResponseEntity<Any> {
+
         if (dto.id != id) return ResponseEntity.badRequest().build()
 
         return try {
@@ -54,7 +58,9 @@ class KillController(val killService: KillService,
     //endregion
 
     @GetMapping("games/{game_id}/kills")
-    fun findAll(@PathVariable(name = "game_id") gameId: Int): ResponseEntity<Any> {
+    fun findAll(@AuthenticationPrincipal token: Jwt,
+                @PathVariable(name = "game_id") gameId: Int): ResponseEntity<Any> {
+
         return try {
             val game = gameService.findById(gameId)
             ResponseEntity.ok(game.kills.map { it.toReadDto() })
@@ -64,7 +70,8 @@ class KillController(val killService: KillService,
     }
 
     @PostMapping("games/{game_id}/kills")
-    fun addKill(@PathVariable(name = "game_id") gameId: Int,
+    fun addKill(@AuthenticationPrincipal token: Jwt,
+                @PathVariable(name = "game_id") gameId: Int,
                 @RequestBody dto: KillAddDTO): ResponseEntity<Any> {
 
         return try {

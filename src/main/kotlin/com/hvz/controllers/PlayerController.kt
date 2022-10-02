@@ -9,6 +9,8 @@ import com.hvz.models.PlayerEditDTO
 import com.hvz.services.game.GameService
 import com.hvz.services.player.PlayerService
 import org.springframework.http.ResponseEntity
+import org.springframework.security.core.annotation.AuthenticationPrincipal
+import org.springframework.security.oauth2.jwt.Jwt
 import org.springframework.web.bind.annotation.*
 import java.net.URI
 
@@ -20,10 +22,12 @@ class PlayerController(val playerService: PlayerService,
 
     //region Admin
     @GetMapping("players")
-    fun findAll() = ResponseEntity.ok(playerService.findAll().map { it.toReadDto() })
+    fun findAll(@AuthenticationPrincipal token: Jwt) = ResponseEntity.ok(playerService.findAll().map { it.toReadDto() })
 
     @GetMapping("players/{id}")
-    fun findById(@PathVariable id: Int) : ResponseEntity<Any> {
+    fun findById(@AuthenticationPrincipal token: Jwt,
+                 @PathVariable id: Int) : ResponseEntity<Any> {
+
         return try {
             val player = playerService.findById(id)
             ResponseEntity.ok(player.toReadDto())
@@ -33,8 +37,10 @@ class PlayerController(val playerService: PlayerService,
     }
 
     @PutMapping("players/{id}")
-    fun update(@PathVariable id: Int,
+    fun update(@AuthenticationPrincipal token: Jwt,
+               @PathVariable id: Int,
                @RequestBody dto: PlayerEditDTO): ResponseEntity<Any> {
+
         if (dto.id != id)
             return ResponseEntity.badRequest().build()
 
@@ -53,7 +59,9 @@ class PlayerController(val playerService: PlayerService,
     }
 
     @DeleteMapping("players/{id}")
-    fun deleteById(@PathVariable id: Int): ResponseEntity<Any> {
+    fun deleteById(@AuthenticationPrincipal token: Jwt,
+                   @PathVariable id: Int): ResponseEntity<Any> {
+
         return try {
             playerService.findById(id)
             playerService.deleteById(id)
@@ -66,7 +74,8 @@ class PlayerController(val playerService: PlayerService,
     //endregion
 
     @PostMapping("games/{game_id}/players")
-    fun addPlayer(@PathVariable(name = "game_id") gameId: Int,
+    fun addPlayer(@AuthenticationPrincipal token: Jwt,
+                  @PathVariable(name = "game_id") gameId: Int,
                   @RequestBody dto: PlayerAddDTO): ResponseEntity<Any> {
 
         return try {
@@ -87,7 +96,9 @@ class PlayerController(val playerService: PlayerService,
     }
 
     @GetMapping("games/{game_id}/players")
-    fun findAll(@PathVariable(name = "game_id") gameId: Int): ResponseEntity<Any> {
+    fun findAll(@AuthenticationPrincipal token: Jwt,
+                @PathVariable(name = "game_id") gameId: Int): ResponseEntity<Any> {
+
         return try {
             val game = gameService.findById(gameId)
 

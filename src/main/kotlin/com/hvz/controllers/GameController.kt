@@ -18,7 +18,8 @@ class GameController(val gameService: GameService) {
 
     //region Admin
     @DeleteMapping("games/{id}")
-    fun deleteById(@PathVariable id: Int): ResponseEntity<Any> {
+    fun deleteById(@AuthenticationPrincipal token: Jwt,
+                   @PathVariable id: Int): ResponseEntity<Any> {
 
         return try {
             gameService.findById(id)
@@ -31,7 +32,7 @@ class GameController(val gameService: GameService) {
     }
 
     @PostMapping("games")
-    fun addGame(@AuthenticationPrincipal jwt: Jwt,
+    fun addGame(@AuthenticationPrincipal token: Jwt,
                 @RequestBody dto: GameAddDTO): ResponseEntity<Any> {
 
         val game = gameService.add(dto.toEntity())
@@ -43,22 +44,12 @@ class GameController(val gameService: GameService) {
     //endregion
 
     @GetMapping("games")
-    fun findAll(@AuthenticationPrincipal jwt: Jwt): ResponseEntity<Any> {
-
-        println(jwt.tokenValue)
-
-        for (test in jwt.claims){
-            println(test)
-        }
-        for (permission in jwt.claims["scope"].toString().split(" ")) {
-            println(permission)
-        }
-
-        return ResponseEntity.ok(gameService.findAll().map { it.toReadDto() })
-    }
+    fun findAll(@AuthenticationPrincipal token: Jwt) = ResponseEntity.ok(gameService.findAll().map { it.toReadDto() })
 
     @GetMapping("games/{id}")
-    fun findById(@PathVariable id: Int): ResponseEntity<Any> {
+    fun findById(@AuthenticationPrincipal token: Jwt,
+                 @PathVariable id: Int): ResponseEntity<Any> {
+
         return try {
             val game = gameService.findById(id)
             ResponseEntity.ok(game.toReadDto())
@@ -68,7 +59,10 @@ class GameController(val gameService: GameService) {
     }
 
     @PutMapping("games/{id}")
-    fun update(@PathVariable id: Int, @RequestBody dto: GameEditDTO): ResponseEntity<Any> {
+    fun update(@AuthenticationPrincipal token: Jwt,
+               @PathVariable id: Int,
+               @RequestBody dto: GameEditDTO): ResponseEntity<Any> {
+
         if (dto.id != id)
             return ResponseEntity.badRequest().build()
 
