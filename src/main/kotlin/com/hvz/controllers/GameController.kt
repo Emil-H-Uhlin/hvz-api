@@ -18,8 +18,7 @@ class GameController(val gameService: GameService) {
 
     //region Admin
     @DeleteMapping("games/{id}")
-    fun deleteById(@AuthenticationPrincipal token: Jwt,
-                   @PathVariable id: Int): ResponseEntity<Any> {
+    fun deleteById(@PathVariable id: Int): ResponseEntity<Any> {
 
         return try {
             gameService.findById(id)
@@ -32,9 +31,7 @@ class GameController(val gameService: GameService) {
     }
 
     @PostMapping("games")
-    fun addGame(@AuthenticationPrincipal token: Jwt,
-                @RequestBody dto: GameAddDTO): ResponseEntity<Any> {
-
+    fun addGame(@RequestBody dto: GameAddDTO): ResponseEntity<Any> {
         val game = gameService.add(dto.toEntity())
 
         val uri = URI.create("api/v1/games/${game.id}")
@@ -44,7 +41,7 @@ class GameController(val gameService: GameService) {
     //endregion
 
     @GetMapping("games")
-    fun findAll(@AuthenticationPrincipal token: Jwt) = ResponseEntity.ok(gameService.findAll().map { it.toReadDto() })
+    fun findAll() = ResponseEntity.ok(gameService.findAll().map { it.toReadDto() })
 
     @GetMapping("games/{id}")
     fun findById(@AuthenticationPrincipal token: Jwt,
@@ -59,8 +56,7 @@ class GameController(val gameService: GameService) {
     }
 
     @PutMapping("games/{id}")
-    fun update(@AuthenticationPrincipal token: Jwt,
-               @PathVariable id: Int,
+    fun update(@PathVariable id: Int,
                @RequestBody dto: GameEditDTO): ResponseEntity<Any> {
 
         if (dto.id != id)

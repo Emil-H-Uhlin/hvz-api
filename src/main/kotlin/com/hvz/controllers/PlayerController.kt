@@ -22,11 +22,10 @@ class PlayerController(val playerService: PlayerService,
 
     //region Admin
     @GetMapping("players")
-    fun findAll(@AuthenticationPrincipal token: Jwt) = ResponseEntity.ok(playerService.findAll().map { it.toReadDto() })
+    fun findAll() = ResponseEntity.ok(playerService.findAll().map { it.toReadDto() })
 
     @GetMapping("players/{id}")
-    fun findById(@AuthenticationPrincipal token: Jwt,
-                 @PathVariable id: Int) : ResponseEntity<Any> {
+    fun findById(@PathVariable id: Int) : ResponseEntity<Any> {
 
         return try {
             val player = playerService.findById(id)
@@ -37,8 +36,7 @@ class PlayerController(val playerService: PlayerService,
     }
 
     @PutMapping("players/{id}")
-    fun update(@AuthenticationPrincipal token: Jwt,
-               @PathVariable id: Int,
+    fun update(@PathVariable id: Int,
                @RequestBody dto: PlayerEditDTO): ResponseEntity<Any> {
 
         if (dto.id != id)
@@ -59,8 +57,7 @@ class PlayerController(val playerService: PlayerService,
     }
 
     @DeleteMapping("players/{id}")
-    fun deleteById(@AuthenticationPrincipal token: Jwt,
-                   @PathVariable id: Int): ResponseEntity<Any> {
+    fun deleteById(@PathVariable id: Int): ResponseEntity<Any> {
 
         return try {
             playerService.findById(id)
@@ -74,8 +71,7 @@ class PlayerController(val playerService: PlayerService,
     //endregion
 
     @PostMapping("games/{game_id}/players")
-    fun addPlayer(@AuthenticationPrincipal token: Jwt,
-                  @PathVariable(name = "game_id") gameId: Int,
+    fun addPlayer(@PathVariable(name = "game_id") gameId: Int,
                   @RequestBody dto: PlayerAddDTO): ResponseEntity<Any> {
 
         return try {
@@ -96,8 +92,7 @@ class PlayerController(val playerService: PlayerService,
     }
 
     @GetMapping("games/{game_id}/players")
-    fun findAll(@AuthenticationPrincipal token: Jwt,
-                @PathVariable(name = "game_id") gameId: Int): ResponseEntity<Any> {
+    fun findAll(@PathVariable(name = "game_id") gameId: Int): ResponseEntity<Any> {
 
         return try {
             val game = gameService.findById(gameId)
