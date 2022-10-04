@@ -2,9 +2,15 @@ package com.hvz.config
 
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
+import org.springframework.context.annotation.Configuration
+import org.springframework.core.convert.converter.Converter
 import org.springframework.http.HttpMethod
+import org.springframework.security.authentication.AbstractAuthenticationToken
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
+import org.springframework.security.core.Authentication
+import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.oauth2.core.DelegatingOAuth2TokenValidator
 import org.springframework.security.oauth2.core.OAuth2Error
 import org.springframework.security.oauth2.core.OAuth2TokenValidator
@@ -15,6 +21,7 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtGra
 import org.springframework.security.web.SecurityFilterChain
 
 @EnableWebSecurity
+@Configuration
 class SecurityConfig {
     @Value("\${spring.security.oauth2.resourceserver.jwt.audiences}")
     final lateinit var audience: String
@@ -23,7 +30,7 @@ class SecurityConfig {
     final lateinit var issuer: String
 
     companion object {
-        const val BASE_API_PATH = "/api/v1/"
+        const val BASE_API_PATH = "/api/v1"
     }
 
     @Bean
@@ -31,83 +38,14 @@ class SecurityConfig {
         cors()
             .and().sessionManagement().disable()
             .csrf().disable()
-            .authorizeRequests { authorize -> with(authorize) {
-                mvcMatchers("/swagger-ui.html",
-                    "/v3/api-docs",
-                    "/swagger-ui/index.html",
-                    "/swagger-ui/index.html/**/*",
-                    "/swagger-ui/index-html#/**/*"
-                ).permitAll()
+            .oauth2ResourceServer {
+                it.jwt().jwtAuthenticationConverter(jwtPermissionsConverter())
+            }
+            .authorizeRequests()
+                .mvcMatchers(HttpMethod.POST, "$BASE_API_PATH/games").hasAuthority("create:games")
+                .mvcMatchers(HttpMethod.GET, "$BASE_API_PATH/games").hasAuthority("read:games")
+                .mvcMatchers(HttpMethod.GET, "$BASE_API_PATH/games/{*}").hasAuthority("read:games")
 
-                //region Games
-                mvcMatchers(HttpMethod.POST, "$BASE_API_PATH/games")
-                    .hasAuthority("create:games")
-
-                mvcMatchers(HttpMethod.GET,"$BASE_API_PATH/games",
-                    "$BASE_API_PATH/games/*")
-                    .hasAuthority("read:games")
-
-                mvcMatchers(HttpMethod.PUT, "$BASE_API_PATH/games/*")
-                    .hasAuthority("update:games")
-
-                mvcMatchers(HttpMethod.DELETE, "$BASE_API_PATH/games/*")
-                    .hasAuthority("delete:games")
-                //endregion
-                //region Players
-                mvcMatchers(HttpMethod.GET, "$BASE_API_PATH/players",
-                    "$BASE_API_PATH/players/*"
-                ).hasAuthority("ADMIN_read:players")
-
-                mvcMatchers(HttpMethod.GET, "$BASE_API_PATH/games/*/players"
-                    , "$BASE_API_PATH/games/*/players/*"
-                ).hasAuthority("read:players")
-
-                mvcMatchers(HttpMethod.POST, "$BASE_API_PATH/games/*/players")
-                    .hasAuthority("create:players")
-
-                mvcMatchers(HttpMethod.PUT, "$BASE_API_PATH/games/*/players")
-                    .hasAuthority("update:players")
-
-                mvcMatchers(HttpMethod.DELETE, "$BASE_API_PATH/players/*",
-                    "$BASE_API_PATH/games/*/players/*"
-                ).hasAuthority("delete:players")
-                //endregion
-                //region Kills
-                mvcMatchers(HttpMethod.GET, "$BASE_API_PATH/kills",
-                    "$BASE_API_PATH/kills/*"
-                ).hasAuthority("ADMIN_read:kills")
-
-                mvcMatchers(HttpMethod.GET, "$BASE_API_PATH/games/*/kills",
-                    "$BASE_API_PATH/games/*/kills/*"
-                ).hasAuthority("read:kills")
-
-                mvcMatchers(HttpMethod.PUT, "$BASE_API_PATH/kills/*",
-                    "$BASE_API_PATH/games/*/kills/*"
-                ).hasAuthority("update:kills")
-
-                mvcMatchers(HttpMethod.POST, "$BASE_API_PATH/games/*/kills")
-                    .hasAuthority("create:kills")
-                //endregion
-                //region Missions
-                mvcMatchers(HttpMethod.GET, "$BASE_API_PATH/missions",
-                    "$BASE_API_PATH/missions/*"
-                ).hasAuthority("ADMIN_read:missions")
-
-                mvcMatchers(HttpMethod.GET, "$BASE_API_PATH/games/*/missions",
-                    "$BASE_API_PATH/games/*/missions/*"
-                ).hasAuthority("read:missions")
-
-                mvcMatchers(HttpMethod.POST, "$BASE_API_PATH/games/*/missions")
-                    .hasAuthority("create:missions")
-
-                mvcMatchers(HttpMethod.PUT, "$BASE_API_PATH/games/*/missions/*",
-                    "$BASE_API_PATH/missions/*"
-                ).hasAuthority("update:missions")
-                //endregion
-            }}
-            .oauth2ResourceServer()
-            .jwt()
-            .jwtAuthenticationConverter(jwtPermissionsConverter())
 
         build()
     }
@@ -121,7 +59,6 @@ class SecurityConfig {
         setJwtValidator(withAudience)
     }
 
-    @Bean
     fun jwtPermissionsConverter(): JwtAuthenticationConverter {
         val grantedAuthoritiesConverter = JwtGrantedAuthoritiesConverter().apply {
             setAuthoritiesClaimName("permissions")
