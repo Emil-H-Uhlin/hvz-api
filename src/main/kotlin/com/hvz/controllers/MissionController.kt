@@ -23,14 +23,13 @@ class MissionController(private val missionService: MissionService,
 
     //region Admin
     @GetMapping("missions")
-    fun findAll(@AuthenticationPrincipal token: Jwt) = ResponseEntity.ok(missionService.findAll().map { it.toReadDto() })
+    fun findAll() = ResponseEntity.ok(missionService.findAll().map { it.toReadDto() })
 
     @GetMapping("missions/{id}")
-    fun findById(@AuthenticationPrincipal token: Jwt, @PathVariable id: Int) = ResponseEntity.ok(missionService.findById(id).toReadDto())
+    fun findById(@PathVariable id: Int) = ResponseEntity.ok(missionService.findById(id).toReadDto())
 
     @PutMapping("missions/{id}")
-    fun updateMission(@AuthenticationPrincipal token: Jwt,
-                      @PathVariable id: Int,
+    fun updateMission(@PathVariable id: Int,
                       @RequestBody dto: MissionEditDTO): ResponseEntity<Any> {
 
         if (dto.id != id) return ResponseEntity.badRequest().build()
@@ -54,8 +53,7 @@ class MissionController(private val missionService: MissionService,
     }
 
     @PostMapping("games/{game_id}/missions")
-    fun addMission(@AuthenticationPrincipal token: Jwt,
-                   @PathVariable(name = "game_id") gameId: Int,
+    fun addMission(@PathVariable(name = "game_id") gameId: Int,
                    @RequestBody dto: MissionAddDTO): ResponseEntity<Any> {
 
         return try {
@@ -83,8 +81,7 @@ class MissionController(private val missionService: MissionService,
     }
 
     @DeleteMapping("missions/{id}")
-    fun deleteMission(@AuthenticationPrincipal token: Jwt,
-                      @PathVariable id : Int): ResponseEntity<Any> {
+    fun deleteMission(  @PathVariable id : Int): ResponseEntity<Any> {
         return try {
             missionService.findById(id)
             missionService.deleteById(id)
@@ -97,8 +94,7 @@ class MissionController(private val missionService: MissionService,
     //endregion
 
     @GetMapping("games/{game_id}/missions")
-    fun findAll(@AuthenticationPrincipal token: Jwt,
-                @PathVariable(name = "game_id") gameId: Int): ResponseEntity<Any> {
+    fun findAll(@PathVariable(name = "game_id") gameId: Int): ResponseEntity<Any> {
         return try {
             val game = gameService.findById(gameId)
 

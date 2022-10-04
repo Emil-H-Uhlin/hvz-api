@@ -16,6 +16,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.security.oauth2.jwt.Jwt
 import org.springframework.web.bind.annotation.*
 import java.net.URI
+import java.util.UUID
 import javax.transaction.Transactional
 
 @RestController
@@ -27,14 +28,13 @@ class KillController(val killService: KillService,
 
     //region Admin
     @GetMapping("kills")
-    fun findAll(@AuthenticationPrincipal token: Jwt) = ResponseEntity.ok(killService.findAll().map { it.toReadDto() })
+    fun findAll() = ResponseEntity.ok(killService.findAll().map { it.toReadDto() })
 
     @GetMapping("kills/{id}")
-    fun findById(@AuthenticationPrincipal token: Jwt, @PathVariable id: Int) = ResponseEntity.ok(killService.findById(id).toReadDto())
+    fun findById(@PathVariable id: Int) = ResponseEntity.ok(killService.findById(id).toReadDto())
 
     @PutMapping("kills/{id}")
-    fun updateKill(@AuthenticationPrincipal token: Jwt,
-                   @PathVariable id: Int,
+    fun updateKill(@PathVariable id: Int,
                    @RequestBody dto: KillEditDTO): ResponseEntity<Any> {
 
         if (dto.id != id) return ResponseEntity.badRequest().build()
@@ -58,8 +58,7 @@ class KillController(val killService: KillService,
     //endregion
 
     @GetMapping("games/{game_id}/kills")
-    fun findAll(@AuthenticationPrincipal token: Jwt,
-                @PathVariable(name = "game_id") gameId: Int): ResponseEntity<Any> {
+    fun findAll(@PathVariable(name = "game_id") gameId: Int): ResponseEntity<Any> {
 
         return try {
             val game = gameService.findById(gameId)
@@ -70,8 +69,7 @@ class KillController(val killService: KillService,
     }
 
     @PostMapping("games/{game_id}/kills")
-    fun addKill(@AuthenticationPrincipal token: Jwt,
-                @PathVariable(name = "game_id") gameId: Int,
+    fun addKill(@PathVariable(name = "game_id") gameId: Int,
                 @RequestBody dto: KillAddDTO): ResponseEntity<Any> {
 
         return try {
@@ -83,6 +81,8 @@ class KillController(val killService: KillService,
             val killer = playerService.findById(dto.killerId)
 
             val victim: Player
+
+            UUID.fromString(dto.victimBiteCode)
 
             playerService.findByBiteCode(dto.victimBiteCode).apply {
                 victim = copy(human = !human, patientZero = patientZero)
@@ -114,6 +114,9 @@ class KillController(val killService: KillService,
         }
         catch (playerNotFoundException: PlayerNotFoundException) {
             ResponseEntity.notFound().build()
+        }
+        catch (illegalArgumentException: IllegalArgumentException) {
+            ResponseEntity.badRequest().build()
         }
     }
 }
