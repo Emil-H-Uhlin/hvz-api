@@ -103,4 +103,18 @@ class PlayerController(val playerService: PlayerService,
         }
     }
 
+    @GetMapping("games/{game_id}/players/{player_id}")
+    fun findAll(@PathVariable(name = "game_id") gameId: Int,
+                @PathVariable(name = "player_id") playerId: Int): ResponseEntity<Any> {
+
+        return try {
+            val game = gameService.findById(gameId)
+            val player = game.players.find { p -> p.id == playerId }
+                ?: return ResponseEntity.notFound().build()
+
+            ResponseEntity.ok(player.toReadDto())
+        } catch (gameNotFoundException: GameNotFoundException) {
+            ResponseEntity.notFound().build()
+        }
+    }
 }
