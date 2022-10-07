@@ -103,4 +103,18 @@ class MissionController(private val missionService: MissionService,
             ResponseEntity.notFound().build()
         }
     }
+
+    @GetMapping("games/{game_id}/missions/{mission_id}")
+    fun findAll(@PathVariable(name = "game_id") gameId: Int,
+                @PathVariable(name = "mission_id") missionId: Int): ResponseEntity<Any> {
+        return try {
+            val game = gameService.findById(gameId)
+            val mission = game.missions.find { mission -> mission.id == missionId }
+                ?: return ResponseEntity.notFound().build()
+
+            ResponseEntity.ok(mission.toReadDto())
+        } catch (gameNotFoundException: GameNotFoundException) {
+            ResponseEntity.notFound().build()
+        }
+    }
 }

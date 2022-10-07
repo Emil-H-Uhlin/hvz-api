@@ -42,10 +42,40 @@ class SecurityConfig {
                 it.jwt().jwtAuthenticationConverter(jwtPermissionsConverter())
             }
             .authorizeRequests()
-                .mvcMatchers(HttpMethod.POST, "$BASE_API_PATH/games").hasAuthority("create:games")
-                .mvcMatchers(HttpMethod.GET, "$BASE_API_PATH/games").hasAuthority("read:games")
-                .mvcMatchers(HttpMethod.GET, "$BASE_API_PATH/games/{*}").hasAuthority("read:games")
-
+            //region game
+            .mvcMatchers(HttpMethod.GET, "$BASE_API_PATH/games").hasAuthority("read:games")
+            .mvcMatchers(HttpMethod.GET, "$BASE_API_PATH/games/{*}").hasAuthority("read:games")
+            .mvcMatchers(HttpMethod.POST, "$BASE_API_PATH/games").hasAuthority("create:games")
+            .mvcMatchers(HttpMethod.DELETE, "$BASE_API_PATH/games/{*}").hasAuthority("delete:games")
+            .mvcMatchers(HttpMethod.PUT, "$BASE_API_PATH/games/{*}").hasAuthority("update:games")
+            //endregion
+            //region players
+            .mvcMatchers(HttpMethod.GET, "$BASE_API_PATH/players").hasAuthority("ADMIN_read:players")
+            .mvcMatchers(HttpMethod.GET, "$BASE_API_PATH/players/{*}").hasAuthority("ADMIN_read:players")
+            .mvcMatchers(HttpMethod.GET, "$BASE_API_PATH/games/{*}/players").hasAuthority("read:players")
+            .mvcMatchers(HttpMethod.GET, "$BASE_API_PATH/games/{*}/players/{*}").hasAuthority("read:players")
+            .mvcMatchers(HttpMethod.PUT, "$BASE_API_PATH/players/{*}").hasAuthority("ADMIN_update:players")
+            .mvcMatchers(HttpMethod.DELETE, "$BASE_API_PATH/players/{*}").hasAuthority("delete:players")
+            .mvcMatchers(HttpMethod.POST, "$BASE_API_PATH/games/{*}/players").hasAuthority("create:players")
+            //endregion
+            //region missions
+            .mvcMatchers(HttpMethod.GET, "$BASE_API_PATH/missions").hasAuthority("ADMIN_read:missions")
+            .mvcMatchers(HttpMethod.GET, "$BASE_API_PATH/missions/{*}").hasAuthority("ADMIN_read:missions")
+            .mvcMatchers(HttpMethod.GET, "$BASE_API_PATH/games/{*}/missions").hasAuthority("read:missions")
+            .mvcMatchers(HttpMethod.GET, "$BASE_API_PATH/games/{*}/missions/{*}").hasAuthority("read:missions")
+            .mvcMatchers(HttpMethod.PUT, "$BASE_API_PATH/missions/{*}").hasAuthority("update:missions")
+            .mvcMatchers(HttpMethod.DELETE, "$BASE_API_PATH/missions/{*}").hasAuthority("delete:missions")
+            .mvcMatchers(HttpMethod.POST, "$BASE_API_PATH/games/{*}/missions").hasAuthority("create:missions")
+            //endregion
+            //region kills
+            .mvcMatchers(HttpMethod.GET, "$BASE_API_PATH/kills").hasAuthority("ADMIN_read:kills")
+            .mvcMatchers(HttpMethod.GET, "$BASE_API_PATH/kills/{*}").hasAuthority("ADMIN_read:kills")
+            .mvcMatchers(HttpMethod.GET, "$BASE_API_PATH/games/{*}/kills").hasAuthority("read:kills")
+            .mvcMatchers(HttpMethod.GET, "$BASE_API_PATH/games/{*}/kills/{*}").hasAuthority("read:kills")
+            .mvcMatchers(HttpMethod.PUT, "$BASE_API_PATH/kills/{*}").hasAuthority("update:kills")
+            .mvcMatchers(HttpMethod.DELETE, "$BASE_API_PATH/kills/{*}").hasAuthority("delete:kills")
+            .mvcMatchers(HttpMethod.POST, "$BASE_API_PATH/games/{*}/kills").hasAuthority("create:kills")
+            //endregion
 
         build()
     }
