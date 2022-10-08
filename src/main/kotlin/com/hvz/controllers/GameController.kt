@@ -1,10 +1,12 @@
 package com.hvz.controllers
 
 import com.hvz.exceptions.GameNotFoundException
+import com.hvz.exceptions.UserNotFoundException
 import com.hvz.misc.GameState
 import com.hvz.models.GameAddDTO
 import com.hvz.models.GameEditDTO
 import com.hvz.services.game.GameService
+import com.hvz.services.user.UserService
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.security.oauth2.jwt.Jwt
@@ -14,7 +16,9 @@ import java.net.URI
 @RestController
 @RequestMapping(path = ["api/v1/"])
 @CrossOrigin(origins = ["*"])
-class GameController(val gameService: GameService) {
+class GameController(private val gameService: GameService,
+                     private val userService: UserService
+) {
 
     //region Admin
     @DeleteMapping("games/{id}")
@@ -80,6 +84,21 @@ class GameController(val gameService: GameService) {
             ResponseEntity.noContent().build()
         } catch (gameNotFoundException: GameNotFoundException) {
             ResponseEntity.badRequest().build()
+        }
+    }
+
+    @GetMapping("games?user")
+    fun findByUser(@AuthenticationPrincipal jwt: Jwt): ResponseEntity<Any> {
+        return try {
+            val user = userService.findById(jwt.claims["sub"] as String)
+
+            val games = gameService.findAll().filter { game ->
+                user.players.find { it.game?.id == game.id } != null
+            }
+
+            ResponseEntity.ok(games.map { it.toReadDto() })
+        } catch (userNotFoundException: UserNotFoundException) {
+            ResponseEntity.notFound().build()
         }
     }
 }

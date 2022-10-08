@@ -26,10 +26,14 @@ data class Player(
     @JoinColumn(name = "game_id")
     val game: Game? = null,
 
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    val user: User? = null,
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
-    val id: Int = -1
+    val id: Int = -1,
 ) {
 
     @OneToMany
