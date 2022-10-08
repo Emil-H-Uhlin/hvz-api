@@ -55,10 +55,10 @@ data class Game(
         description, gameState.name,
         nwLat, nwLng,
         seLat, seLng,
-        players.map { it.id },
-        kills.map { it.id },
-        messages.map { it.id },
-        missions.map { it.id }
+        players.map { "/api/v1/games/$id/players/${it.id}" },
+        kills.map { "/api/v1/games/$id/kills/${it.id}" },
+        messages.map { "/api/v1/games/$id/messages/${it.id}" },
+        missions.map { "/api/v1/games/$id/missions/${it.id}" }
     )
 }
 
@@ -66,10 +66,10 @@ data class GameReadDTO(val id: Int, val gameName: String,
                        val description: String, val gameState: String,
                        val nwLat: Double, val nwLng: Double,
                        val seLat: Double, val seLng: Double,
-                       val players: Collection<Int>,
-                       val kills: Collection<Int>,
-                       val messages: Collection<Int>,
-                       val missions: Collection<Int>
+                       val players: Collection<String>,
+                       val kills: Collection<String>,
+                       val messages: Collection<String>,
+                       val missions: Collection<String>
 )
 
 data class GameAddDTO(val gameName: String, val description: String,
