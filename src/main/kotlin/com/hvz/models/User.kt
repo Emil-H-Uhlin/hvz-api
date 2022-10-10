@@ -6,13 +6,11 @@ import javax.persistence.OneToMany
 
 @Entity(name = "hvz_user")
 data class User(
-        private val __uid : String,
+        @Id
+        val uid : String,
         val name: String,
         val email: String,
 ) {
-    @Id
-    var uid: String = __uid.removePrefix("auth0|")
-
     @OneToMany(mappedBy = "user")
     val players: Collection<Player> = setOf()
 
