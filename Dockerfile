@@ -8,9 +8,9 @@ WORKDIR /app
 
 ENV PORT 8080
 ENV SPRING_PROFILE "prod"
-ENV JPA_DDL "create"
+ENV JPA_DDL "validate"
 ENV SHOW_SQL "false"
-ENV INIT_SQL "always"
+ENV INIT_SQL "never"
 
 COPY --from=gradle /app/build/libs/*.jar /app/app.jar
 RUN chown -R 1000:1000 /app
