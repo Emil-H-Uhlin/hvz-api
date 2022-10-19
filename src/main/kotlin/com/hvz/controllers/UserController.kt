@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import java.io.BufferedReader
@@ -40,14 +41,8 @@ class UserController(private val userService: UserService,
         }
     }
 
-    @PostMapping("/register")
+    @PutMapping("/register")
     fun addUser(@AuthenticationPrincipal jwt: Jwt): ResponseEntity<Any> {
-
-        try {
-            userService.findById((jwt.claims["sub"] as String).removePrefix("auth0|"))
-
-            return ResponseEntity.badRequest().build()
-        } catch (_: UserNotFoundException) { }
 
         val url = URL(jwt.getClaimAsStringList("aud")[1])
         val con = url.openConnection().apply {
@@ -59,12 +54,25 @@ class UserController(private val userService: UserService,
 
         /* Returns json body as one string line */
         val idClaims = reader.lines().findFirst().get()
-                .replace(Regex("[{}\"]"), "") // remove brackets and citation signs
-                .split(",") // split into claims-array
-                .associate { claim -> // map claims to key-value
-                    val split = claim.split(":")
-                    split[0] to split[1]
-                }
+            .replace(Regex("[{}\"]"), "") // remove brackets and citation signs
+            .split(",") // split into claims-array
+            .associate { claim -> // map claims to key-value
+                val split = claim.split(":")
+                split[0] to split[1]
+            }
+
+        try {
+            val foundUser = userService.findById((jwt.claims["sub"] as String).removePrefix("auth0|"))
+
+            userService.update(
+                foundUser.copy(
+                    name = idClaims["name"]!!,
+                    email = idClaims["email"]!!
+                )
+            )
+
+            return ResponseEntity.noContent().build()
+        } catch (_: UserNotFoundException) { }
 
         val user = userService.add(
                 User(idClaims["sub"]!!.removePrefix("auth0|"),
