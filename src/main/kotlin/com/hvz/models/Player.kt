@@ -54,7 +54,12 @@ data class PlayerReadDTO(val id: Int, val human: Boolean,
 )
 
 data class PlayerAddDTO(val human: Boolean) {
-    fun toEntity() = Player(human = human, biteCode = UUID.randomUUID().toString())
+    fun toEntity(user: User, game: Game) = Player(
+        human = human,
+        biteCode = UUID.randomUUID().toString(),
+        user = user,
+        game = game
+    )
 }
 
 data class PlayerEditDTO(val id: Int, val human: Boolean)
