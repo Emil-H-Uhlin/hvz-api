@@ -31,6 +31,9 @@ data class Game(
     @Column(name = "se_lng", nullable = false)
     val seLng: Double,
 
+    @Column(name = "max_players", nullable = false)
+    val maxPlayers: Int = DEFAULT_PLAYER_MAX_COUNT,
+
     @Column(name = "game_state", nullable = false)
     val gameState: GameState = GameState.REGISTERING,
 
@@ -39,6 +42,9 @@ data class Game(
     @Column(name = "id")
     val id: Int = -1
 ) {
+    companion object {
+        const val DEFAULT_PLAYER_MAX_COUNT: Int = 32
+    }
 
     @OneToMany(mappedBy = "game", cascade = [CascadeType.REMOVE])
     val players: Collection<Player> = setOf()
@@ -76,11 +82,13 @@ data class GameReadDTO(val id: Int, val gameName: String,
 data class GameAddDTO(val gameName: String, val description: String,
                       val nwLat: Double, val nwLng: Double,
                       val seLat: Double, val seLng: Double,
+                      val maxPlayers: Int?,
 ) {
     fun toEntity() = Game(
         gameName, description,
         nwLat, nwLng,
-        seLat, seLng
+        seLat, seLng,
+        maxPlayers ?: Game.DEFAULT_PLAYER_MAX_COUNT
     )
 }
 

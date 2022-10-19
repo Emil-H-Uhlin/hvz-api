@@ -83,7 +83,7 @@ class PlayerController(private val playerService: PlayerService,
             val game = gameService.findById(gameId)
             val user = userService.findById((jwt.claims["sub"] as String).removePrefix("auth0|"))
 
-            if (game.gameState != GameState.REGISTERING) {
+            if (game.gameState != GameState.REGISTERING || game.players.size >= game.maxPlayers) {
                 return ResponseEntity.badRequest().build()
             }
 
