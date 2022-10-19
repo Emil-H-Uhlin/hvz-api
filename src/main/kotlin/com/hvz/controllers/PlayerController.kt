@@ -76,21 +76,25 @@ class PlayerController(private val playerService: PlayerService,
 
     @PostMapping("games/{game_id}/players")
     fun addPlayer(@PathVariable(name = "game_id") gameId: Int,
-                  @RequestBody dto: PlayerAddDTO): ResponseEntity<Any> {
+                  @RequestBody dto: PlayerAddDTO,
+                  @AuthenticationPrincipal jwt: Jwt): ResponseEntity<Any> {
 
         return try {
             val game = gameService.findById(gameId)
+            val user = userService.findById((jwt.claims["sub"] as String).removePrefix("auth0|"))
 
             if (game.gameState != GameState.REGISTERING) {
                 return ResponseEntity.badRequest().build()
             }
 
-            val player = playerService.add(dto.toEntity().copy(game = game))
+            val player = playerService.add(dto.toEntity().copy(game = game, user = user))
 
             val uri = URI.create("api/v1/players/${player.id}")
 
             ResponseEntity.created(uri).build()
-        } catch (gameNotFoundException: GameNotFoundException) {
+        } catch (_: GameNotFoundException) {
+            ResponseEntity.notFound().build()
+        } catch (_: UserNotFoundException) {
             ResponseEntity.notFound().build()
         }
     }
