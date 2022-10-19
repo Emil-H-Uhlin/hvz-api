@@ -5,7 +5,9 @@ import com.hvz.exceptions.UserNotFoundException
 import com.hvz.misc.GameState
 import com.hvz.models.GameAddDTO
 import com.hvz.models.GameEditDTO
+import com.hvz.models.PlayerAddDTO
 import com.hvz.services.game.GameService
+import com.hvz.services.player.PlayerService
 import com.hvz.services.user.UserService
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.annotation.AuthenticationPrincipal
@@ -17,7 +19,8 @@ import java.net.URI
 @RequestMapping(path = ["api/v1/"])
 @CrossOrigin(origins = ["*"])
 class GameController(private val gameService: GameService,
-                     private val userService: UserService
+                     private val userService: UserService,
+                     private val playerService: PlayerService,
 ) {
 
     //region Admin
@@ -90,7 +93,7 @@ class GameController(private val gameService: GameService,
     @GetMapping("games?user")
     fun findByUser(@AuthenticationPrincipal jwt: Jwt): ResponseEntity<Any> {
         return try {
-            val user = userService.findById(jwt.claims["sub"] as String)
+            val user = userService.findById((jwt.claims["sub"] as String).removePrefix("auth0|"))
 
             val games = gameService.findAll().filter { game ->
                 user.players.find { it.game?.id == game.id } != null
@@ -98,6 +101,30 @@ class GameController(private val gameService: GameService,
 
             ResponseEntity.ok(games.map { it.toReadDto() })
         } catch (userNotFoundException: UserNotFoundException) {
+            ResponseEntity.notFound().build()
+        }
+    }
+
+    @PutMapping("games/{game_id}")
+    fun userJoinGame(@AuthenticationPrincipal jwt: Jwt,
+                     @PathVariable(name="game_id") gameId: Int,
+                     @RequestBody dto: PlayerAddDTO): ResponseEntity<Any> {
+
+        return try {
+            val user = userService.findById((jwt.claims["sub"] as String).removePrefix("auth0|"))
+            val game = gameService.findById(gameId)
+
+            if (user.players.any { player -> player.game!!.id == gameId })
+                return ResponseEntity.badRequest().build()
+
+            val player = playerService.add(dto.toEntity(user, game))
+
+            val uri = URI.create("api/v1/games/$gameId/players/${player.id}")
+
+            ResponseEntity.created(uri).build()
+        } catch (_: UserNotFoundException) {
+            ResponseEntity.notFound().build()
+        } catch (_: GameNotFoundException){
             ResponseEntity.notFound().build()
         }
     }
