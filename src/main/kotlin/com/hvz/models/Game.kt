@@ -1,6 +1,7 @@
 package com.hvz.models
 
 import com.hvz.misc.GameState
+import javax.persistence.CascadeType
 import javax.persistence.Column
 import javax.persistence.Entity
 import javax.persistence.GeneratedValue
@@ -39,7 +40,7 @@ data class Game(
     val id: Int = -1
 ) {
 
-    @OneToMany(mappedBy = "game")
+    @OneToMany(mappedBy = "game", cascade = [CascadeType.REMOVE])
     val players: Collection<Player> = setOf()
 
     @OneToMany(mappedBy = "game")
