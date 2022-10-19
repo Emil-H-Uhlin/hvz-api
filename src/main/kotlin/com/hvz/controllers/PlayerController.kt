@@ -87,7 +87,7 @@ class PlayerController(private val playerService: PlayerService,
                 return ResponseEntity.badRequest().build()
             }
 
-            if (user.players.any { p -> p.user!!.uid == user.uid})
+            if (user.players.any { p -> p.game!!.id == gameId })
                 return ResponseEntity.badRequest().build()
 
             val player = playerService.add(dto.toEntity().copy(game = game, user = user))
