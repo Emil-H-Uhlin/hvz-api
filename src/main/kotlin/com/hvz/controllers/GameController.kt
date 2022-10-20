@@ -17,7 +17,7 @@ import java.net.URI
 @RequestMapping(path = ["api/v1/"])
 @CrossOrigin(origins = ["*"])
 class GameController(private val gameService: GameService,
-                     private val userService: UserService
+                     private val userService: UserService,
 ) {
 
     //region Admin
@@ -93,7 +93,7 @@ class GameController(private val gameService: GameService,
             val user = userService.findById(jwt.claims["sub"] as String)
 
             val games = gameService.findAll().filter { game ->
-                user.players.find { it.game?.id == game.id } != null
+                user.players.find { it.game!!.id == game.id } != null
             }
 
             ResponseEntity.ok(games.map { it.toReadDto() })
