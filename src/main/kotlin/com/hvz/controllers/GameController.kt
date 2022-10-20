@@ -87,10 +87,10 @@ class GameController(private val gameService: GameService,
         }
     }
 
-    @GetMapping("users/games")
+    @GetMapping("currentUser/games")
     fun findByUser(@AuthenticationPrincipal jwt: Jwt): ResponseEntity<Any> {
         return try {
-            val user = userService.findById(jwt.claims["sub"] as String)
+            val user = userService.findById((jwt.claims["sub"] as String).removePrefix("auth0|"))
 
             val games = gameService.findAll().filter { game ->
                 user.players.find { it.game!!.id == game.id } != null
