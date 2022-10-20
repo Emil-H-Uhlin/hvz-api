@@ -87,7 +87,7 @@ class GameController(private val gameService: GameService,
         }
     }
 
-    @GetMapping("games?user")
+    @GetMapping("users/games")
     fun findByUser(@AuthenticationPrincipal jwt: Jwt): ResponseEntity<Any> {
         return try {
             val user = userService.findById(jwt.claims["sub"] as String)
