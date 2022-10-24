@@ -23,7 +23,6 @@ class PlayerController(private val playerService: PlayerService,
                        private val gameService: GameService,
                        private val userService: UserService,
 ) {
-
     //region Admin
     @GetMapping("players")
     fun findAll() = ResponseEntity.ok(playerService.findAll().map { it.toReadDto() })
@@ -81,7 +80,7 @@ class PlayerController(private val playerService: PlayerService,
 
         return try {
             val game = gameService.findById(gameId)
-            val user = userService.findById((jwt.claims["sub"] as String).removePrefix("auth0|"))
+            val user = userService.getUserBySub(jwt.claims["sub"] as String)
 
             if (game.gameState != GameState.REGISTERING || game.players.size >= game.maxPlayers) {
                 return ResponseEntity.badRequest().build()
@@ -106,9 +105,7 @@ class PlayerController(private val playerService: PlayerService,
     fun findAll(@PathVariable(name = "game_id") gameId: Int): ResponseEntity<Any> {
 
         return try {
-            val game = gameService.findById(gameId)
-
-            ResponseEntity.ok(game.players.map { it.toReadDto() })
+            ResponseEntity.ok(gameService.findById(gameId).players.map { it.toReadDto() })
         } catch (gameNotFoundException: GameNotFoundException) {
             ResponseEntity.notFound().build()
         }
@@ -119,8 +116,8 @@ class PlayerController(private val playerService: PlayerService,
                 @PathVariable(name = "player_id") playerId: Int): ResponseEntity<Any> {
 
         return try {
-            val game = gameService.findById(gameId)
-            val player = game.players.find { p -> p.id == playerId }
+            val player = gameService.findById(gameId)
+                .players.find { p -> p.id == playerId }
                 ?: return ResponseEntity.notFound().build()
 
             ResponseEntity.ok(player.toReadDto())
@@ -129,14 +126,15 @@ class PlayerController(private val playerService: PlayerService,
         }
     }
 
-    @GetMapping("games/{game_id}/players?user")
-    fun findByUser(@PathVariable(name = "game_id") gameId: Int,
+    @GetMapping("games/{game_id}/currentUser/player")
+    fun getBiteCode(@PathVariable(name = "game_id") gameId: Int,
                    @AuthenticationPrincipal jwt: Jwt): ResponseEntity<Any> {
 
         return try {
-            val user = userService.findById(jwt.claims["sub"] as String)
-
-            return ResponseEntity.ok(user.players.map { it.toReadDto() })
+            ResponseEntity.ok(
+                userService.getUserBySub(jwt.claims["sub"] as String)
+                    .players.map { it.toReadDto() }
+            )
         }
         catch (userNotFoundException: UserNotFoundException) {
             ResponseEntity.notFound().build()

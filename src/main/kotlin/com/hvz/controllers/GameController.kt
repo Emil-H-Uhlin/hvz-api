@@ -48,12 +48,10 @@ class GameController(private val gameService: GameService,
     fun findAll() = ResponseEntity.ok(gameService.findAll().map { it.toReadDto() })
 
     @GetMapping("games/{id}")
-    fun findById(@AuthenticationPrincipal token: Jwt,
-                 @PathVariable id: Int): ResponseEntity<Any> {
+    fun findById(@PathVariable id: Int): ResponseEntity<Any> {
 
         return try {
-            val game = gameService.findById(id)
-            ResponseEntity.ok(game.toReadDto())
+            ResponseEntity.ok(gameService.findById(id).toReadDto())
         } catch (gameNotFoundException: GameNotFoundException) {
             ResponseEntity.notFound().build()
         }
@@ -90,7 +88,7 @@ class GameController(private val gameService: GameService,
     @GetMapping("currentUser/games")
     fun findByUser(@AuthenticationPrincipal jwt: Jwt): ResponseEntity<Any> {
         return try {
-            val user = userService.findById((jwt.claims["sub"] as String).removePrefix("auth0|"))
+            val user = userService.getUserBySub(jwt.claims["sub"] as String)
 
             val games = gameService.findAll().filter { game ->
                 user.players.find { it.game!!.id == game.id } != null

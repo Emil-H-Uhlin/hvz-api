@@ -25,7 +25,7 @@ import java.net.URL
 @RequestMapping
 @CrossOrigin(origins = ["*"])
 class UserController(private val userService: UserService,
-                     private val gameService: GameService
+                     private val gameService: GameService,
 ) {
 
     @DeleteMapping("api/v1/users/{id}")
@@ -62,7 +62,7 @@ class UserController(private val userService: UserService,
             }
 
         try {
-            val foundUser = userService.findById((jwt.claims["sub"] as String).removePrefix("auth0|"))
+            val foundUser = userService.getUserBySub(jwt.claims["sub"] as String)
 
             userService.update(
                 foundUser.copy(
@@ -93,8 +93,7 @@ class UserController(private val userService: UserService,
     fun findById(@PathVariable(name = "id") uid: String): ResponseEntity<Any> {
 
         return try {
-            val user = userService.findById(uid)
-            return ResponseEntity.ok(user.toReadDto())
+            return ResponseEntity.ok(userService.findById(uid).toReadDto())
         } catch (userNotFoundException: UserNotFoundException) {
             ResponseEntity.notFound().build()
         }
