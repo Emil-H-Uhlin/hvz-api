@@ -7,6 +7,9 @@ import org.springframework.stereotype.Service
 
 @Service
 class UserServiceImpl(private val userRepository: UserRepository): UserService {
+    companion object {
+        private const val AUTH0_PREFIX = "auth0|"
+    }
     override fun findById(id: String): User = userRepository.findById(id)
         .orElseThrow {
             UserNotFoundException(id)
@@ -23,4 +26,6 @@ class UserServiceImpl(private val userRepository: UserRepository): UserService {
     override fun deleteById(id: String) {
         userRepository.deleteById(id)
     }
+
+    fun getUserBySub(sub: String): User = findById(sub.removePrefix(AUTH0_PREFIX))
 }
