@@ -27,5 +27,5 @@ class UserServiceImpl(private val userRepository: UserRepository): UserService {
         userRepository.deleteById(id)
     }
 
-    fun getUserBySub(sub: String): User = findById(sub.removePrefix(AUTH0_PREFIX))
+    override fun getUserBySub(sub: String): User = findById(sub.removePrefix(AUTH0_PREFIX))
 }
