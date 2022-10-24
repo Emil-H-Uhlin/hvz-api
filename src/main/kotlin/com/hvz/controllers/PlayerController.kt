@@ -125,16 +125,17 @@ class PlayerController(private val playerService: PlayerService,
             ResponseEntity.notFound().build()
         }
     }
-
+    
     @GetMapping("games/{game_id}/currentUser/player")
-    fun getBiteCode(@PathVariable(name = "game_id") gameId: Int,
-                   @AuthenticationPrincipal jwt: Jwt): ResponseEntity<Any> {
+    fun getUserPlayer(@PathVariable(name = "game_id") gameId: Int,
+                      @AuthenticationPrincipal jwt: Jwt): ResponseEntity<Any> {
 
         return try {
-            ResponseEntity.ok(
-                userService.getUserBySub(jwt.claims["sub"] as String)
-                    .players.map { it.toReadDto() }
-            )
+            val user = userService.getUserBySub(jwt.claims["sub"] as String)
+            val player = user.players.find { player -> player.game!!.id == gameId }
+                ?: return ResponseEntity.notFound().build()
+
+            ResponseEntity.ok(player.toReadDto())
         }
         catch (userNotFoundException: UserNotFoundException) {
             ResponseEntity.notFound().build()
