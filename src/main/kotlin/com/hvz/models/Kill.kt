@@ -51,7 +51,6 @@ data class Kill(
 
 data class KillAddDTO(val story: String, val lat: Double,
                       val lng: Double, val victimBiteCode: String,
-                      val killerId: Int,
 )
 
 data class KillEditDTO(val id: Int, val story: String, val lat: Double, val lng: Double)

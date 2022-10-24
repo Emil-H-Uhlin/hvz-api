@@ -11,6 +11,7 @@ import com.hvz.models.Player
 import com.hvz.services.game.GameService
 import com.hvz.services.kill.KillService
 import com.hvz.services.player.PlayerService
+import com.hvz.services.user.UserService
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.security.oauth2.jwt.Jwt
@@ -24,7 +25,9 @@ import javax.transaction.Transactional
 @CrossOrigin(origins = ["*"])
 class KillController(val killService: KillService,
                      val gameService: GameService,
-                     val playerService: PlayerService) {
+                     val playerService: PlayerService,
+                     val userService: UserService,
+) {
 
     //region Admin
     @GetMapping("kills")
@@ -70,7 +73,8 @@ class KillController(val killService: KillService,
 
     @PostMapping("games/{game_id}/kills")
     fun addKill(@PathVariable(name = "game_id") gameId: Int,
-                @RequestBody dto: KillAddDTO): ResponseEntity<Any> {
+                @RequestBody dto: KillAddDTO,
+                @AuthenticationPrincipal jwt: Jwt): ResponseEntity<Any> {
 
         return try {
             val game = gameService.findById(gameId)
@@ -78,7 +82,8 @@ class KillController(val killService: KillService,
             if (game.gameState != GameState.PLAYING)
                 return ResponseEntity.badRequest().build()
 
-            val killer = playerService.findById(dto.killerId)
+            val killer = userService.getUserBySub(jwt.claims["sub"] as String).players.find { player -> player.game!!.id == gameId }
+                ?: return ResponseEntity.badRequest().build()
 
             val victim: Player
 
@@ -90,7 +95,7 @@ class KillController(val killService: KillService,
 
             // killer is human or victim was already dead
             if (killer.human || victim.human)
-                ResponseEntity.badRequest().build<Nothing>()
+                return ResponseEntity.badRequest().build()
 
             playerService.update(victim)
 
