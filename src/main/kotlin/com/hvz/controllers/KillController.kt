@@ -71,20 +71,11 @@ class KillController(val killService: KillService,
         }
     }
 
-    @PostMapping("games/{game_id}/kills")
-    fun addKill(@PathVariable(name = "game_id") gameId: Int,
-                @RequestBody dto: KillAddDTO,
+    @PostMapping("kills")
+    fun addKill(@RequestBody dto: KillAddDTO,
                 @AuthenticationPrincipal jwt: Jwt): ResponseEntity<Any> {
 
         return try {
-            val game = gameService.findById(gameId)
-
-            if (game.gameState != GameState.PLAYING)
-                return ResponseEntity.badRequest().build()
-
-            val killer = userService.getUserBySub(jwt.claims["sub"] as String).players.find { player -> player.game!!.id == gameId }
-                ?: return ResponseEntity.badRequest().build()
-
             val victim: Player
 
             UUID.fromString(dto.victimBiteCode)
@@ -92,6 +83,14 @@ class KillController(val killService: KillService,
             playerService.findByBiteCode(dto.victimBiteCode).apply {
                 victim = copy(human = !human, patientZero = patientZero)
             }
+
+            val game = victim.game!!
+
+            if (game.gameState != GameState.PLAYING)
+                return ResponseEntity.badRequest().build()
+
+            val killer = userService.getUserBySub(jwt.claims["sub"] as String).players.find { player -> player.game!!.id == game.id }
+                ?: return ResponseEntity.badRequest().build()
 
             // killer is human or victim was already dead
             if (killer.human || victim.human)
