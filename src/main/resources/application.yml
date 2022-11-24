@@ -1,7 +1,25 @@
+server:
+  port: ${PORT:8080}
+
 spring:
+  profiles:
+    active: ${SPRING_PROFILE:dev}
   security:
     oauth2:
       resourceserver:
         jwt:
           issuer-uri: ${AUTH0_ISSUER_DOMAIN}
           audiences: ${AUDIENCE}
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQL95Dialect
+    hibernate:
+      ddl-auto: ${JPA_DDL:validate}
+    show-sql: ${SHOW_SQL:true}
+
+  # Local datasource configuration (overridden for prod in ProdDatabaseConfig)
+  datasource:
+    url: jdbc:postgresql://localhost:5432/hvzdb
+    username: postgres
+    password: 2W1
