@@ -14,11 +14,7 @@ data class User(
     @OneToMany(mappedBy = "user")
     val players: Collection<Player> = setOf()
 
-    fun toReadDto() = UserReadDTO(uid, name, email, players.map { "/api/v1/games/${it.game!!.id}/${it.id}" })
+    fun toReadDto() = UserReadDTO(name, email)
 }
 
-data class UserReadDTO(val uid: String,
-                       val name: String,
-                       val email: String,
-                       val players: Collection<String>,
-)
+data class UserReadDTO(val name: String, val email: String)

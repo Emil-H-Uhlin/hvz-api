@@ -63,15 +63,14 @@ class UserController(private val userService: UserService,
 
         try {
             val foundUser = userService.getUserBySub(jwt.claims["sub"] as String)
-
-            userService.update(
-                foundUser.copy(
-                    name = idClaims["name"]!!,
-                    email = idClaims["email"]!!
-                )
+            val updatedUser = foundUser.copy(
+                name = idClaims["name"]!!,
+                email = idClaims["email"]!!
             )
 
-            return ResponseEntity.noContent().build()
+            userService.update(updatedUser)
+
+            return ResponseEntity.ok(updatedUser.toReadDto())
         } catch (_: UserNotFoundException) { }
 
         val user = userService.add(
@@ -83,7 +82,7 @@ class UserController(private val userService: UserService,
 
         val uri = URI.create("api/v1/users/${user.uid}")
 
-        return ResponseEntity.created(uri).build()
+        return ResponseEntity.created(uri).body(user.toReadDto())
     }
 
     @GetMapping("api/v1/users")
