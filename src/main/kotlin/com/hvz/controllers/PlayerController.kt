@@ -75,7 +75,7 @@ class PlayerController(private val playerService: PlayerService,
             null -> ResponseEntity.badRequest().body("User not registered")
             else -> {
                 if (user.players.any { p -> p.game!!.id == gameId })
-                    ResponseEntity.badRequest().body("User already playing game")
+                    return ResponseEntity.badRequest().body("User already playing game")
 
                 val player = playerService.add(dto.toEntity().copy(game = game, user = user))
 
