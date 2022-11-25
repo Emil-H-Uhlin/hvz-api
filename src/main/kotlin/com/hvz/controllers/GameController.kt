@@ -1,7 +1,5 @@
 package com.hvz.controllers
 
-import com.hvz.exceptions.GameNotFoundException
-import com.hvz.exceptions.UserNotFoundException
 import com.hvz.misc.GameState
 import com.hvz.models.GameAddDTO
 import com.hvz.models.GameEditDTO
@@ -19,43 +17,34 @@ import java.net.URI
 class GameController(private val gameService: GameService,
                      private val userService: UserService,
 ) {
-
-    //region Admin
     @DeleteMapping("games/{id}")
-    fun deleteById(@PathVariable id: Int): ResponseEntity<Any> {
+    fun deleteById(@PathVariable id: Int): ResponseEntity<Any> =
+        when (gameService.findById(id)) {
+            null -> ResponseEntity.notFound().build()
+            else -> {
+                gameService.deleteById(id)
 
-        return try {
-            gameService.findById(id)
-            gameService.deleteById(id)
-
-            ResponseEntity.noContent().build()
-        } catch (gameNotFoundException: GameNotFoundException) {
-            ResponseEntity.badRequest().build()
+                ResponseEntity.noContent().build()
+            }
         }
-    }
 
     @PostMapping("games")
-    fun addGame(@RequestBody dto: GameAddDTO): ResponseEntity<Any> {
-        val game = gameService.add(dto.toEntity())
+    fun addGame(@RequestBody dto: GameAddDTO): ResponseEntity<Any> =
+        with (gameService.add(dto.toEntity())) {
+            val uri = URI.create("api/v1/games/${id}")
 
-        val uri = URI.create("api/v1/games/${game.id}")
-
-        return ResponseEntity.created(uri).build()
-    }
-    //endregion
+            return ResponseEntity.created(uri).build()
+        }
 
     @GetMapping("games")
     fun findAll() = ResponseEntity.ok(gameService.findAll().map { it.toReadDto() })
 
     @GetMapping("games/{id}")
-    fun findById(@PathVariable id: Int): ResponseEntity<Any> {
-
-        return try {
-            ResponseEntity.ok(gameService.findById(id).toReadDto())
-        } catch (gameNotFoundException: GameNotFoundException) {
-            ResponseEntity.notFound().build()
+    fun findById(@PathVariable id: Int): ResponseEntity<Any> =
+        when (val game = gameService.findById(id)) {
+            null -> ResponseEntity.notFound().build()
+            else -> ResponseEntity.ok(game.toReadDto())
         }
-    }
 
     @PutMapping("games/{id}")
     fun update(@PathVariable id: Int,
@@ -64,39 +53,32 @@ class GameController(private val gameService: GameService,
         if (dto.id != id)
             return ResponseEntity.badRequest().build()
 
-        return try {
-            val game = gameService.findById(id)
-
-            gameService.update(
-                game.copy(
-                    gameName = dto.gameName,
-                    description = dto.description,
-                    nwLat = dto.nwLat,
-                    nwLng = dto.nwLng,
-                    seLat = dto.seLat,
-                    seLng = dto.seLng,
-                    gameState = GameState.valueOf(dto.gameState)
+        return when (val game = gameService.findById(id)) {
+            null -> ResponseEntity.notFound().build()
+            else -> {
+                gameService.update(
+                    game.copy(
+                        gameName = dto.gameName,
+                        description = dto.description,
+                        nwLat = dto.nwLat,
+                        nwLng = dto.nwLng,
+                        seLat = dto.seLat,
+                        seLng = dto.seLng,
+                        gameState = GameState.valueOf(dto.gameState)
+                    )
                 )
-            )
 
-            ResponseEntity.noContent().build()
-        } catch (gameNotFoundException: GameNotFoundException) {
-            ResponseEntity.badRequest().build()
+                ResponseEntity.noContent().build()
+            }
         }
     }
 
     @GetMapping("currentUser/games")
-    fun findByUser(@AuthenticationPrincipal jwt: Jwt): ResponseEntity<Any> {
-        return try {
-            val user = userService.getUserBySub(jwt.claims["sub"] as String)
-
-            val games = gameService.findAll().filter { game ->
+    fun findByUser(@AuthenticationPrincipal jwt: Jwt): ResponseEntity<Any> =
+        when (val user = userService.getUserBySub(jwt.claims["sub"] as String)) {
+            null -> ResponseEntity.notFound().build()
+            else -> ResponseEntity.ok(gameService.findAll().filter { game ->
                 user.players.find { it.game!!.id == game.id } != null
-            }
-
-            ResponseEntity.ok(games.map { it.toReadDto() })
-        } catch (userNotFoundException: UserNotFoundException) {
-            ResponseEntity.notFound().build()
+            })
         }
-    }
 }
