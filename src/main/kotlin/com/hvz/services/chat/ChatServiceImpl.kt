@@ -1,13 +1,14 @@
 package com.hvz.services.chat
 
-import com.hvz.exceptions.ChatMessageNotFoundException
 import com.hvz.models.ChatMessage
 import com.hvz.repositories.ChatRepository
 import org.springframework.stereotype.Service
 
 @Service
 class ChatServiceImpl(private val chatRepository: ChatRepository): ChatService {
-    override fun findById(id: Int): ChatMessage = chatRepository.findById(id).orElseThrow { ChatMessageNotFoundException(id) }
+    override fun findById(id: Int): ChatMessage? = chatRepository.findById(id).let {
+        return if (it.isPresent) it.get() else null
+    }
 
     override fun findAll(): Collection<ChatMessage> = chatRepository.findAll()
 

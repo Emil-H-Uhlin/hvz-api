@@ -1,16 +1,14 @@
 package com.hvz.services.kill
 
-import com.hvz.exceptions.KillNotFoundException
 import com.hvz.models.Kill
 import com.hvz.repositories.KillRepository
 import org.springframework.stereotype.Service
 
 @Service
 class KillServiceImpl(private val killRepository: KillRepository): KillService {
-    override fun findById(id: Int): Kill = killRepository.findById(id)
-        .orElseThrow {
-            KillNotFoundException(id)
-        }
+    override fun findById(id: Int): Kill? = killRepository.findById(id).let {
+        return if (it.isPresent) it.get() else null
+    }
 
     override fun findAll(): Collection<Kill> = killRepository.findAll()
 

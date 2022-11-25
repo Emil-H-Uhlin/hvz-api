@@ -1,6 +1,5 @@
 package com.hvz.services.player
 
-import com.hvz.exceptions.PlayerNotFoundException
 import com.hvz.models.Player
 import com.hvz.repositories.PlayerRepository
 import org.springframework.stereotype.Service
@@ -9,12 +8,11 @@ import org.springframework.stereotype.Service
 class PlayerServiceImpl(val playerRepository: PlayerRepository): PlayerService {
     override fun findByBiteCode(biteCode: String) = findAll().find {
         it.biteCode == biteCode
-    } ?: throw PlayerNotFoundException(biteCode)
+    }
 
-    override fun findById(id: Int): Player = playerRepository.findById(id)
-        .orElseThrow {
-            PlayerNotFoundException(id)
-        }
+    override fun findById(id: Int): Player? = playerRepository.findById(id).let {
+        return if (it.isPresent) it.get() else null
+    }
 
     override fun findAll(): Collection<Player> = playerRepository.findAll()
 
