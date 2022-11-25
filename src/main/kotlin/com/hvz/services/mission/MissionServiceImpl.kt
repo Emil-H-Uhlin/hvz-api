@@ -6,7 +6,9 @@ import org.springframework.stereotype.Service
 
 @Service
 class MissionServiceImpl(private val missionRepository: MissionRepository): MissionService {
-    override fun findById(id: Int): Mission = missionRepository.findById(id).orElseThrow()
+    override fun findById(id: Int): Mission? = missionRepository.findById(id).let {
+        return if (it.isPresent) it.get() else null
+    }
 
     override fun findAll(): Collection<Mission> = missionRepository.findAll()
 

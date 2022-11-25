@@ -4,5 +4,5 @@ import com.hvz.models.User
 import com.hvz.services.CrudService
 
 interface UserService: CrudService<User, String> {
-    fun getUserBySub(sub: String): User
+    fun getUserBySub(sub: String): User?
 }

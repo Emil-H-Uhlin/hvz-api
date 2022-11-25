@@ -1,6 +1,5 @@
 package com.hvz.services.user
 
-import com.hvz.exceptions.UserNotFoundException
 import com.hvz.models.User
 import com.hvz.repositories.UserRepository
 import org.springframework.stereotype.Service
@@ -10,10 +9,9 @@ class UserServiceImpl(private val userRepository: UserRepository): UserService {
     companion object {
         private const val AUTH0_PREFIX = "auth0|"
     }
-    override fun findById(id: String): User = userRepository.findById(id)
-        .orElseThrow {
-            UserNotFoundException(id)
-        }
+    override fun findById(id: String): User? = userRepository.findById(id).let {
+        return if (it.isPresent) it.get() else null
+    }
 
     override fun findAll(): Collection<User> = userRepository.findAll()
 
@@ -27,5 +25,5 @@ class UserServiceImpl(private val userRepository: UserRepository): UserService {
         userRepository.deleteById(id)
     }
 
-    override fun getUserBySub(sub: String): User = findById(sub.removePrefix(AUTH0_PREFIX))
+    override fun getUserBySub(sub: String): User? = findById(sub.removePrefix(AUTH0_PREFIX))
 }
