@@ -78,7 +78,9 @@ class GameController(private val gameService: GameService,
         when (val user = userService.getUserBySub(jwt.claims["sub"] as String)) {
             null -> ResponseEntity.notFound().build()
             else -> ResponseEntity.ok(gameService.findAll().filter { game ->
-                user.players.find { it.game!!.id == game.id } != null
-            })
+                user.players.any {
+                    it.game!!.id == game.id
+                }
+            }.map { it.toReadDto() })
         }
 }
