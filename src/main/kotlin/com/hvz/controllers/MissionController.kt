@@ -90,7 +90,7 @@ class MissionController(private val missionService: MissionService,
                 else -> {
                     missionService.deleteById(missionId)
 
-                    return ResponseEntity.noContent().build()
+                    ResponseEntity.noContent().build()
                 }
             }
         }
