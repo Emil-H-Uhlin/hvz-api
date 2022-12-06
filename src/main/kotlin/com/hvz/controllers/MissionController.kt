@@ -17,7 +17,7 @@ class MissionController(private val missionService: MissionService,
 
     @GetMapping("games/{game_id}/missions")
     fun getMissionsInGame(@PathVariable(name = "game_id") gameId: Int) = ResponseEntity.ok(
-        missionService.findAll().map {
+        missionService.findAll().filter { it.game!!.id == gameId }.map {
             it.toReadDto()
         }
     )
